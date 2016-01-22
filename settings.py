@@ -30,7 +30,7 @@ root_path = os.path.split(__file__)[0] + '/'
 # directories
 RIG_TOOLS_PATH = root_path + 'rig_tools/'
 AUTORIG_PATH = root_path + 'autorig/'
-PIPE_UTILS_PATH = root_path + 'pipe_utils/'
+PIPE_UTILS_PATH = root_path + 'utils/'
 
 # sides
 sides = ['c', 'l', 'r']
