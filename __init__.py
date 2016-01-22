@@ -11,8 +11,8 @@
 
 :use:
     Instead of reloading individual modules simply reload(telims_pipe)
-    This will require you to do an initial import for rigging tools, but
-    there after you will not need to reload individual modules, only the
+    This will require you to do an initial import for telims_pipe, but
+    after that you will not need to reload individual modules, only the
     root module 'telims_pipe'.
 
 This __init__ is for transport. If placed in maya/scripts directory, you
