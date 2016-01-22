@@ -38,11 +38,14 @@ sides = ['c', 'l', 'r']
 # suffixes
 suffixes = [
             "grp", # group
-            "jnt", # joints
-            "loc", # locators
+            "jnt", # joint
+            "loc", # locator
             "geo", # geometry
-            "ctrl", # controls
+            "ctrl", # control
             "ikHandle", # ikHandle
             "ikjnt", # ikJoint
-            "fkjnt", # fkJoint
+            "fkJnt", # fkJoint
             ]
+
+HOOK_NODE_TYPE = 'locator'
+META_NODE_TYPE = 'lightInfo'
