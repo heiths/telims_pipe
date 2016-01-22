@@ -22,7 +22,7 @@
 from maya import OpenMaya, cmds
 
 # external
-import pipe_settings
+import settings
 
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
@@ -47,10 +47,10 @@ def get_unique_name(asset, side, part, suffix, security=10):
     name = root_name.format(asset, side, part, str(1), suffix)
 
     count = 1
-    if not side in pipe_settings.sides:
+    if not side in settings.sides:
         OpenMaya.MGlobal.displayError("Side is not valid")
         return
-    if not suffix in pipe_settings.suffixes:
+    if not suffix in settings.suffixes:
         OpenMaya.MGlobal.displayError("Suffix is not valid")
         return
 

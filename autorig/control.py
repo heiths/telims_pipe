@@ -23,7 +23,7 @@
 import pymel.core as pm
 
 # external
-from pipe_utils import xform_utils, name_utils
+from utils import xform_utils, name_utils
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#

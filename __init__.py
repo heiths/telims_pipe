@@ -25,13 +25,13 @@ the path to rigging_tools inside the sys.path list.
 
 # internal
 import sys
-import pipe_settings
+import settings
 
 #------------------------------------------------------------------------------#
 #--------------------------------------------------------------------- START --#
 
 # add telims_pipe to the PYTHONPATH variable for this session
-sys.path.append(pipe_settings.root_path)
+sys.path.append(settings.root_path)
 
 # reset all modules
 if globals().has_key('init_modules'):
