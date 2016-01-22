@@ -10,7 +10,7 @@
     Base module for naming standards.
 
 :use:
-    from pipe_utils import name_utils
+    from utils import name_utils
     name = name_utils.get_unique_name(char, side, node_type, suffix)
     loc = pm.spaceLocator(n=name)
 """
