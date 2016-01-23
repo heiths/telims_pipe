@@ -11,6 +11,8 @@ import telims_pipe
 from rig_tools import curve_joint_generator
 
 gui = curve_joint_generator.CurveJointGenerator()
-<br>
 no_gui = curve_joint_generator.CurveJointGenerator(False, 20, False, True, "testing", "r", "arm")
+
+# for reloading, just reload telims_pipe
+reload(telims_pipe)
 ~~~
