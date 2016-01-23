@@ -1,6 +1,6 @@
 # To Use:
 
-Download and unzip repo.
+Download and unzip the repo.
 Place telims_pipe directory in the maya scripts folder.
 
 From there, simply import telims_repo to start using.
