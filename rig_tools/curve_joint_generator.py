@@ -33,7 +33,7 @@ class CurveJointGenerator(QtGui.QDialog):
     Tool for generating joints on a curve.
     """
     def __init__(self, gui=True, joints=10, del_curve=True, del_ikHandle=True,
-                 asset = "asset", side="l", part="part"):
+                 asset = "asset", side="l", part="part", security=50):
         """
         Defines the curve joint generator.
 
@@ -45,6 +45,7 @@ class CurveJointGenerator(QtGui.QDialog):
             asset: For naming convention.
             side: For naming convention. (r, l, c)
             part: For naming convention.
+            security: The max amount of joints to be used.
 
         """
 
@@ -55,6 +56,7 @@ class CurveJointGenerator(QtGui.QDialog):
         self.asset = asset
         self.side = side
         self.part = part
+        self.security = security
 
         if self.gui:
             self.build_gui()
@@ -147,7 +149,7 @@ class CurveJointGenerator(QtGui.QDialog):
         side = self.side
         part = self.part
         joints = self.joints
-        security = joints + 1
+        security = self.security
 
         if self.gui:
             asset = self.asset_name.text()
