@@ -45,6 +45,7 @@ suffixes = [
             "ikHandle", # ikHandle
             "ikjnt", # ikJoint
             "fkJnt", # fkJoint
+            "crv", # curve
             ]
 
 HOOK_NODE_TYPE = 'locator'
