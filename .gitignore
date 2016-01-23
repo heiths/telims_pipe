@@ -46,5 +46,5 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
-.pyc
+*.pyc
 .pyo
