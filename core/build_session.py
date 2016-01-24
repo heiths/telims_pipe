@@ -15,7 +15,6 @@
 
 # built-in
 import os
-import glob
 import pymel.core as pm
 
 # external
@@ -33,14 +32,13 @@ class BuildSession(object):
         The initializer.
         """
         self.modules = list()
-        self.folders_to_exclude = ["build_modules"]
-        self.files_to_exclude = ["__init__.py"]
+        self.exclude_dirs = ["build_modules"]
+        self.exclude_files = ["__init__.py"]
         self.modules_dic = dict()
         self.available_modules = list()
 
         # let's begin
         self._get_avaliable_modules()
-        print self.available_modules
 
     def _get_avaliable_modules(self):
         """
@@ -57,12 +55,15 @@ class BuildSession(object):
         path_files = os.listdir(path)
         modules = list()
         for path_file in path_files:
-            if os.path.isdir(path + path_file)
-                if path_file not in self.folders_to_exclude:
+            # exclude directories
+            if os.path.isdir(path + path_file):
+                if path_file not in self.exclude_dirs:
                     self._check_path(path + path_file)
+            # modules
             if path_file.endswith(".py"):
-                modules.append(path_file)
-                self.modules_dic[path_file] = path + path_file
+                if path_file not in self.exclude_files:
+                    modules.append(path_file)
+                    self.modules_dic[path_file] = path + path_file
 
         # store the available modules
         self.available_modules += modules
