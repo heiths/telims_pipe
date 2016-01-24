@@ -7,7 +7,7 @@
     acarlisle
 
 :description:
-    Base __init__ for base module.
+    Base __init__ for build modules.
 """
 
 #------------------------------------------------------------------------------#

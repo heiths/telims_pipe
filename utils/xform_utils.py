@@ -23,12 +23,12 @@ from maya import OpenMaya
 import pymel.core as pm
 
 # internal
-import name_utils
+from name_utils import NameUtils
 
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
 
-def zero(obj):
+def zero(obj, security=50):
     """
     This will group and zero out the transforms of an object.
     """
@@ -37,10 +37,11 @@ def zero(obj):
     temp = name.split("_")
 
     # group name
-    grp_name = name_utils.get_unique_name(temp[0].split('0')[0],
+    grp_name = NameUtils.get_unique_name(temp[0].split('0')[0],
                                           temp[1],
                                           temp[2].split('0')[0],
-                                          "grp")
+                                          "grp",
+                                          security)
     if not grp_name:
         OpenMaya.MGlobal.displayError('ERROR generating name')
         return

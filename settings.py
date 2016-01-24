@@ -7,11 +7,7 @@
     acarlisle
 
 :description:
-    Rig standards.
-
-:use:
-
-long description
+    telims_pipe settings.
 
 """
 
@@ -31,6 +27,8 @@ root_path = os.path.split(__file__)[0] + '/'
 RIG_TOOLS_PATH = root_path + 'rig_tools/'
 AUTORIG_PATH = root_path + 'autorig/'
 PIPE_UTILS_PATH = root_path + 'utils/'
+MODULES = root_path + 'modules/'
+IMAGES = root_path + 'images/'
 
 # sides
 sides = ['c', 'l', 'r']

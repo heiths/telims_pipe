@@ -59,11 +59,11 @@ class CurveJointGenerator(QtGui.QDialog):
         self.security = security
 
         if self.gui:
-            self.build_gui()
+            self._build_gui()
         else:
-            self.build()
+            self._build()
 
-    def build_gui(self, *kwargs):
+    def _build_gui(self, *kwargs):
         """
         Build gui
         """
@@ -74,7 +74,7 @@ class CurveJointGenerator(QtGui.QDialog):
             pm.deleteUI("curve_joint_generator", window=True)
 
         # create window
-        parent = self.get_maya_window()
+        parent = self._get_maya_window()
         window = QtGui.QMainWindow(parent)
         window.setObjectName(window_name)
         window.setWindowTitle("Curve Joint Generator")
@@ -128,19 +128,19 @@ class CurveJointGenerator(QtGui.QDialog):
         build_layout.addWidget(build_button)
 
         # build
-        build_button.clicked.connect(self.build)
+        build_button.clicked.connect(self._build)
 
         # show window
         window.show()
 
-    def get_maya_window(self):
+    def _get_maya_window(self):
         """
         Grabs the Maya window.
         """
         pointer = mui.MQtUtil.mainWindow()
         return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
 
-    def build(self, *args):
+    def _build(self, *args):
         """
         Builds the joints on the curve.
         """
@@ -194,10 +194,10 @@ class CurveJointGenerator(QtGui.QDialog):
         pm.makeIdentity(root_joint, apply=True)
 
         # cleanup
-        self.cleanup()
+        self._cleanup()
 
 
-    def cleanup(self, *args):
+    def _cleanup(self, *args):
         """
         Cleanup
         """

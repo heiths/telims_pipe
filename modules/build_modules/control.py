@@ -11,7 +11,7 @@
 
 :use:
     from base import control
-    ctrl_class = control.Control(char, side, node_type, size, color)
+    ctrl_class = control.Control(asset, side, part, size, color)
     ctrl_class.circle_cc()
 
 """
@@ -23,7 +23,8 @@
 import pymel.core as pm
 
 # external
-from utils import xform_utils, name_utils
+from utils.name_utils import NameUtils
+from utils import xform_utils
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -32,15 +33,16 @@ class Control(object):
     """
     Base control class.
     """
-    def __init__(self, char='char', side='c', node_type='default',
-                 size=1, color='yellow', aim_axis='x'):
+    def __init__(self, asset='asset', side='c', part='part',
+                 size=1, color='yellow', aim_axis='x', security=50):
         """
         The constructor.
         """
         # naming convention
-        self.char = char
+        self.asset = asset
         self.side = side
-        self.node_type = node_type
+        self.part = part
+        self.security = security
 
         # settings
         self.color = color
@@ -65,21 +67,22 @@ class Control(object):
         """
         Builds the name of the control.
         """
-        self.ctrl_name = name_utils.get_unique_name(self.char,
-                                                    self.side,
-                                                    self.node_type,
-                                                    "ctrl")
+        self.ctrl_name = NameUtils.get_unique_name(self.asset,
+                                                   self.side,
+                                                   self.part,
+                                                   "ctrl",
+                                                   self.security)
 
     def _finalize_ctrl(self):
         """
         Orientates, scales and zeroes out the control.
         """
         self._aim_ctrl()
-        self._color_ctrl()
+        self._set_ctrl_color()
 
         if self.size != 1:
-            for s in self.ctrl.getShapes():
-                pm.scale(s.cv, self.size, self.size, self.size, r=1)
+            for shape in self.ctrl.getShapes():
+                pm.scale(shape.cv, self.size, self.size, self.size, r=1)
             pm.delete(self.ctrl, ch=1)
 
         self.ctrl_grp = xform_utils.zero(self.ctrl)
@@ -96,29 +99,28 @@ class Control(object):
         elif self.aim_axis == "z":
             y = -90
 
-        for s in self.ctrl.getShapes():
-            pm.rotate(s.cv, 0, y, z, r=1)
+        for shape in self.ctrl.getShapes():
+            pm.rotate(shape.cv, 0, y, z, r=1)
 
-    def set_ctrl_color(self):
+    def _set_ctrl_color(self):
         """
         Sets the color of the control object.
         """
-        for s in self.ctrl.getShapes():
-            pm.rotate(s.cv, 0, y, z, r = 1)
-            if self.ctrl_color == "yellow":
-                s.overrideEnabled.set(True)
-                s.overrideColor.set(17)
-            elif self.ctrl_color == "blue":
+        for shape in self.ctrl.getShapes():
+            if self.color == "yellow":
+                shape.overrideEnabled.set(True)
+                shape.overrideColor.set(17)
+            elif self.color == "blue":
                 if self.side == "l":
-                    s.overrideEnabled.set(True)
-                    s.overrideColor.set(6)
+                    shape.overrideEnabled.set(True)
+                    shape.overrideColor.set(6)
                 elif self.side == "r":
-                    s.overrideEnabled.set(True)
-                    s.overrideColor.set(13)
-            elif self.cc_color == "red":
+                    shape.overrideEnabled.set(True)
+                    shape.overrideColor.set(13)
+            elif self.color == "red":
                 if self.side == "l":
-                    s.overrideEnabled.set(True)
-                    s.overrideColor.set(13)
+                    shape.overrideEnabled.set(True)
+                    shape.overrideColor.set(13)
                 elif self.side == "r":
-                    s.overrideEnabled.set(True)
-                    s.overrideColor.set(6)
+                    shape.overrideEnabled.set(True)
+                    shape.overrideColor.set(6)

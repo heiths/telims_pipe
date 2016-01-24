@@ -39,7 +39,7 @@ class NameUtils(object):
 
     @classmethod
     def get_unique_name(self, asset = "asset", side = "c",  part = "part",
-                        suffix = "loc", security = 10):
+                        suffix = "loc", security = 50):
         """
         Builds unique name based off the following parameters.
 
