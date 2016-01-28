@@ -7,7 +7,7 @@
     acarlisle
 
 :description:
-    Responsible for the actual build session.
+    Responsible for finding all available modules.
 """
 
 #------------------------------------------------------------------------------#
