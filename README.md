@@ -5,7 +5,14 @@ Place telims_pipe directory in the maya scripts folder.
 
 From there, simply import telims_repo to start using.
 
-## Example:
+## To Use Autorig:
+~~~ python
+import telims_pipe
+from pipe_ui import autorig_ui
+autorig = autorig_ui.AutorigUI()
+autorig.build_gui()
+~~~
+## Example Use of Repo:
 ~~~ python
 import telims_pipe
 from rig_tools import curve_joint_generator
