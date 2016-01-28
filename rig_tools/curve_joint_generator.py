@@ -14,16 +14,16 @@
 #------------------------------------------------------------------- IMPORTS --#
 
 # built-in
+import shiboken
 import pymel.core as pm
 import maya.OpenMayaUI as mui
-import shiboken
 
 # 3rd party
 from PySide import QtGui, QtCore
 
 # external
-from utils.name_utils import NameUtils
 import settings
+from pipe_utils.name_utils import NameUtils
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -70,8 +70,8 @@ class CurveJointGenerator(QtGui.QDialog):
         window_name = "curve_joint_generator"
 
         # check if window exists
-        if pm.window("curve_joint_generator", exists=True):
-            pm.deleteUI("curve_joint_generator", window=True)
+        if pm.window(window_name, exists=True):
+            pm.deleteUI(window_name, window=True)
 
         # create window
         parent = self._get_maya_window()
@@ -111,11 +111,11 @@ class CurveJointGenerator(QtGui.QDialog):
         name_layout = QtGui.QHBoxLayout()
         layout.addLayout(name_layout)
 
-        self.asset_name = QtGui.QLineEdit("Asset Name")
+        self.asset_name = QtGui.QLineEdit("AssetName")
         self.side = QtGui.QComboBox()
         for side in settings.sides:
             self.side.addItem(side)
-        self.part_name = QtGui.QLineEdit("Part of Asset")
+        self.part_name = QtGui.QLineEdit("PartOfAsset")
         name_layout.addWidget(self.asset_name)
         name_layout.addWidget(self.side)
         name_layout.addWidget(self.part_name)
@@ -156,7 +156,6 @@ class CurveJointGenerator(QtGui.QDialog):
             side = self.side.currentText()
             part = self.part_name.text()
             joints = self.joints_box.value()
-            print joints
             security = joints + 1
         try:
             self.curve = pm.ls(sl=True)[0]

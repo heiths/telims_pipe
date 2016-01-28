@@ -24,11 +24,12 @@ import os
 root_path = os.path.split(__file__)[0] + '/'
 
 # directories
-RIG_TOOLS_PATH = root_path + 'rig_tools/'
-AUTORIG_PATH = root_path + 'autorig/'
-PIPE_UTILS_PATH = root_path + 'utils/'
+RIG_TOOLS = root_path + 'rig_tools/'
+PIPE_UTILS = root_path + 'pipe_utils/'
 MODULES = root_path + 'modules/'
 IMAGES = root_path + 'images/'
+PIPE_UI = root_path + 'pipe_ui/'
+CORE = root_path + 'core/'
 
 # sides
 sides = ['c', 'l', 'r']

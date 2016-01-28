@@ -7,7 +7,7 @@
     acarlisle
 
 :description:
-    Base __init__ for utils module.
+    Base __init__ for ui.
 """
 
 #------------------------------------------------------------------------------#
