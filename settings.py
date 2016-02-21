@@ -23,6 +23,12 @@ import os
 # root path
 root_path = os.path.split(__file__)[0] + '/'
 
+# Window path handling
+separator = os.sep
+if separator != '/':
+    root_path = root_path.replace(os.sep, '/')
+
+
 # directories
 RIG_TOOLS = root_path + 'rig_tools/'
 PIPE_UTILS = root_path + 'pipe_utils/'
