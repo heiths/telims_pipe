@@ -117,6 +117,8 @@ class OverlapToolUI(RWindow):
         # available assets
         for asset in rnodes.RAsset.iter_all():
             rasset = asset.get_path().split('|')[1]
+            if ":" in rasset:
+                rasset = rasset.split(':')[0]
             assets_box.addItem(rasset)
         assets_box_layout.addWidget(assets_box_label)
         assets_box_layout.addWidget(assets_box)
