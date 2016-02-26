@@ -270,13 +270,17 @@ class OverlapToolUI(RWindow):
         play_layout = QtGui.QHBoxLayout()
         main_layout.addLayout(play_layout)
 
+        self.reset_button = QtGui.QPushButton("|<<")
+        self.reset_button.setMaximumWidth(30)
         self.play_button = QtGui.QPushButton("PLAY")
+        play_layout.addWidget(self.reset_button)
         play_layout.addWidget(self.play_button)
 
         # signals
         build_button.clicked.connect(self._build)
         delete_button.clicked.connect(self._delete)
         self.play_button.clicked.connect(self._play)
+        self.reset_button.clicked.connect(self._reset)
         bake_button.clicked.connect(self._bake)
         select_button.clicked.connect(self._set_parent_control)
         self.hide_controls_button.clicked.connect(self._hide_controls)
@@ -344,12 +348,15 @@ class OverlapToolUI(RWindow):
             control = QtGui.QListWidgetItem(control)
             self.selected_controls.addItem(control)
         rigs = self._find_rigs()
+        rigs.reverse()
         for rig in rigs:
             rig = rig.split("_dynamic")[0]
             rig = rig.split("|")[1]
             rig_exists = self.rig_box.findText(rig, QtCore.Qt.MatchFixedString)
             if not rig_exists >= 0:
                 self.rig_box.addItem(rig)
+                index = self.rig_box.findText(rig)
+                self.rig_box.setCurrentIndex(index)
 
     def _find_rigs(self):
         """
@@ -434,6 +441,11 @@ class OverlapToolUI(RWindow):
             self.play_button.setStyleSheet("background-color: light gray;")
             self.play_button.setText("PLAY")
             cmds.play(state=False)
+    def _reset(self):
+        """
+        Resets the timeline for playback.
+        """
+        cmds.currentTime(self.start_frame)
 
     def _hide_controls(self):
         """
