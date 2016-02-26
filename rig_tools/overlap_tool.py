@@ -54,7 +54,7 @@ from rig_tools.core import control
 
 CON = "constraint"
 JOINT = "joint"
-ATTRS = ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz", "v"]
+ATTRS = ("tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz", "v")
 TR_ATTRS = ("tx", "ty", "tz", "rx", "ry", "rz")
 SCALE_ATTRS = ("sx", "sy", "sz")
 LOCAL_SCALE_ATTRS = ("localScaleX", "localScaleY", "localScaleZ")
@@ -87,6 +87,7 @@ class OverlapTool(object):
     def build(self, rig_name, parent_control, selected_controls,
               point_lock, frame_range):
         """
+        Entry point.
         @params:
             rig_name: Name of rig.
             parent_control: Parent Control, space switching.
@@ -152,7 +153,15 @@ class OverlapTool(object):
         """
         if not rig:
             return
+
+        # delete rig
         cmds.delete(rig)
+
+        # clear meta nodes from scene
+        meta_nodes = cmds.ls(type="network")
+        for node in meta_nodes:
+            if node.endswith("DyMETA"):
+                cmds.delete(node)
 
     def _transfer_keys(self, from_controls, to_controls):
         """
@@ -212,7 +221,6 @@ class OverlapTool(object):
         # make curve dynamic
         cmds.select(self.curve)
         make_curve = mel.eval('makeCurvesDynamic 2 {"1","0","1","1","0"}')
-        # return
 
         # define hair system
         cmds.pickWalk(d="up")
@@ -540,7 +548,7 @@ class OverlapTool(object):
                                                      scale=10,
                                                      n=dynamic_control_name)
 
-        # root dynamic joint
+        # root control
         target = self.controls[0]
 
         # snap control
@@ -582,6 +590,32 @@ class OverlapTool(object):
         for attr in ATTRS:
             cmds.setAttr("{0}.{1}".format(self.dynamic_control, attr),
                          l=True, k=False, cb=False)
+        self._create_meta_data()
+
+    def _create_meta_data(self):
+        """
+        Creates a network node to hold the meta data for the rig.
+        """
+        network_node = cmds.createNode("network")
+        meta_node_name = self._get_unique_name("metaNode", "DyMETA")
+        meta_node = cmds.rename(network_node, meta_node_name)
+        data = {
+                "rigName" : self.rig_name,
+                "parentControl" : self.parent_control,
+                "controls" : self.controls,
+                "pointLock" : self.point_lock,
+                "startFrame" : self.start_frame,
+                "endFrame" : self.end_frame}
+        # build data
+        for meta, data in data.iteritems():
+            if meta == "controls":
+                cmds.addAttr(meta_node, dt="stringArray", ln=meta)
+                cmds.setAttr("{0}.{1}".format(meta_node, meta),
+                             *([len(data)]+data), type="stringArray")
+                continue
+            cmds.addAttr(meta_node, dt="string", ln=meta)
+            cmds.setAttr("{0}.{1}".format(meta_node, meta),
+                         data, type="string")
 
     def _get_unique_name(self, obj_type, suffix):
         """
