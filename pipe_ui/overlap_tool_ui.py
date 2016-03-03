@@ -49,12 +49,12 @@ from ani_tools.rmaya import overlap_tool
 
 # external
 from pipe_api.rmaya import rnodes
-from ui_lib.window import RWindow
+from ui_lib.window import RMainWindow
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class OverlapToolUI(RWindow):
+class OverlapToolUI(RMainWindow):
 
     PREF_NAME = 'overlap_tool_ui'
 
@@ -66,7 +66,7 @@ class OverlapToolUI(RWindow):
         self.overlap_obj = overlap_tool.OverlapTool()
 
         # super class
-        RWindow.__init__(self, *args, **kwargs)
+        RMainWindow.__init__(self, *args, **kwargs)
 
         # empty data
         self.controls = None
@@ -87,6 +87,26 @@ class OverlapToolUI(RWindow):
         """
         window_name = "Overlap Tool"
 
+        # menu styling
+        menu_styling = """
+        QMenu {
+            text-align: left;
+            background-color: #444444;
+            border: 1px solid grey;
+        }
+
+        QMenu::item::selected {
+            background-color: #4c7380;
+        }
+
+        QMenuBar::item::selected {
+            background-color: #4c7380;
+        }
+
+        QComboBox::item {
+            height: 30px;
+        }"""
+
         # build main window
         self.setObjectName(window_name)
         self.setMinimumSize(300, 420)
@@ -96,10 +116,50 @@ class OverlapToolUI(RWindow):
         # stay on top
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
+        # main widget
+        main_widget = QtGui.QWidget()
+
         # main layout
-        main_layout = QtGui.QVBoxLayout()
+        main_layout = QtGui.QVBoxLayout(main_widget)
         main_layout.setObjectName("main_layout")
-        self.setLayout(main_layout)
+        self.setCentralWidget(main_widget)
+
+        # menu bar
+        self.menu = QtGui.QMenuBar(self)
+        self.menu.setStyleSheet(menu_styling)
+        self.setMenuBar(self.menu)
+
+        # file
+        self.file = self.menu.addMenu("File")
+
+        # items
+        self.save_menu_option = QtGui.QAction("Save", self.menu)
+        self.save_menu_option.triggered.connect(self.overlap_obj._json_save)
+        self.load_menu_option = QtGui.QAction("Load", self.menu)
+        self.load_menu_option.triggered.connect(self.overlap_obj._json_load)
+        self.file.addAction(self.save_menu_option)
+        self.file.addAction(self.load_menu_option)
+
+        # batch
+        self.batch = self.menu.addMenu("Batch")
+
+        # items
+        # self.batch_build = QtGui.QAction("Build", self.menu)
+        self.batch_bake = QtGui.QAction("Bake", self.menu)
+        self.batch_delete = QtGui.QAction("Delete", self.menu)
+        # self.batch.addAction(self.batch_build)
+        self.batch.addAction(self.batch_bake)
+        self.batch.addAction(self.batch_delete)
+
+        # help
+        self.help = self.menu.addMenu("Help")
+
+        # items
+        self.confluence_page = QtGui.QAction("Confluence Page", self.menu)
+        self.properties_page = QtGui.QAction("Dynamic Hair Properties (2016)",
+                                             self.menu)
+        self.help.addAction(self.confluence_page)
+        self.help.addAction(self.properties_page)
 
         # option layout
         option_layout = QtGui.QVBoxLayout()
@@ -135,16 +195,14 @@ class OverlapToolUI(RWindow):
         main_layout.addLayout(preset_button_layout)
 
         spacer = QtGui.QLabel(" ")
-        spacer.setMaximumWidth(100)
-        spacer.setMinimumWidth(100)
+        spacer.setMaximumWidth(130)
+        spacer.setMinimumWidth(130)
 
         save_button = QtGui.QPushButton("Save")
         load_button = QtGui.QPushButton("Load")
-        load_all_button = QtGui.QPushButton("Build All")
         preset_button_layout.addWidget(spacer)
         preset_button_layout.addWidget(save_button)
         preset_button_layout.addWidget(load_button)
-        preset_button_layout.addWidget(load_all_button)
 
         # basic settings
         divider_layout = QtGui.QHBoxLayout()
@@ -163,20 +221,27 @@ class OverlapToolUI(RWindow):
         divider_layout.addWidget(divider_label)
         divider_layout.addWidget(divider_right)
 
-        # rig in scene
+        # rigs in scene
         rig_box_layout = QtGui.QHBoxLayout()
         main_layout.addLayout(rig_box_layout)
 
         rig_box_label = QtGui.QLabel("Rigs:")
         rig_box_label.setMaximumWidth(35)
         self.rig_box = QtGui.QComboBox()
+        self.rig_box.setStyleSheet(menu_styling)
         rigs = self._find_rigs()
+        select_all_button = QtGui.QPushButton("Select All")
+        select_all_button.setMaximumWidth(60)
+        select_dynamic_control = QtGui.QPushButton("Select")
+        select_dynamic_control.setMaximumWidth(60)
         for rig in rigs:
             rig = rig.split("_dynamic")[0]
             rig = rig.split("|")[1]
             self.rig_box.addItem(rig)
         rig_box_layout.addWidget(rig_box_label)
         rig_box_layout.addWidget(self.rig_box)
+        rig_box_layout.addWidget(select_all_button)
+        rig_box_layout.addWidget(select_dynamic_control)
 
         # rig name
         rig_name_layout = QtGui.QHBoxLayout()
@@ -195,11 +260,11 @@ class OverlapToolUI(RWindow):
         parent_label = QtGui.QLabel("Parent: ")
         self.parent_input_box = QtGui.QLineEdit()
         self.parent_input_box.setPlaceholderText("Select a parent control")
-        select_button = QtGui.QPushButton("Select")
-        select_button.setMinimumWidth(60)
+        set_button = QtGui.QPushButton("Set")
+        set_button.setMinimumWidth(60)
         parent_layout.addWidget(parent_label)
         parent_layout.addWidget(self.parent_input_box)
-        parent_layout.addWidget(select_button)
+        parent_layout.addWidget(set_button)
 
         # frame label
         frame_range_label_layout = QtGui.QHBoxLayout()
@@ -236,21 +301,6 @@ class OverlapToolUI(RWindow):
         frame_range_layout.addWidget(point_lock_label)
         frame_range_layout.addWidget(self.point_lock_option)
 
-        # selection layout
-        selection_layout = QtGui.QHBoxLayout()
-        selection_label_layout = QtGui.QHBoxLayout()
-        selected_controls_label = QtGui.QLabel("Controls:")
-        self.hide_controls_button = QtGui.QPushButton("Hide Controls")
-        select_dynamic_control = QtGui.QPushButton("Select Dynamic Control")
-        selection_label_layout.addWidget(selected_controls_label)
-        selection_label_layout.addWidget(self.hide_controls_button)
-        selection_label_layout.addWidget(select_dynamic_control)
-        main_layout.addLayout(selection_label_layout)
-        main_layout.addLayout(selection_layout)
-
-        self.selected_controls = QtGui.QListWidget()
-        self.selected_controls.setMaximumSize(350, 50)
-        selection_layout.addWidget(self.selected_controls)
 
         # build layout
         build_layout = QtGui.QHBoxLayout()
@@ -265,6 +315,38 @@ class OverlapToolUI(RWindow):
         build_layout.addWidget(build_button)
         build_layout.addWidget(bake_button)
         build_layout.addWidget(delete_button)
+
+        # control settings
+        control_options_layout = QtGui.QHBoxLayout()
+        main_layout.addLayout(control_options_layout)
+
+        control_options_label = QtGui.QLabel("Control")
+        control_options_label.setAlignment(QtCore.Qt.AlignCenter)
+        control_options_label.setMinimumHeight(20)
+        divider_left = QtGui.QFrame()
+        divider_left.setFrameShape(QtGui.QFrame.HLine)
+        divider_left.setFrameShadow(QtGui.QFrame.Sunken)
+        divider_right = QtGui.QFrame()
+        divider_right.setFrameShape(QtGui.QFrame.HLine)
+        divider_right.setFrameShadow(QtGui.QFrame.Sunken)
+        control_options_layout.addWidget(divider_left)
+        control_options_layout.addWidget(control_options_label)
+        control_options_layout.addWidget(divider_right)
+
+        # distribute
+        distribute_layout = QtGui.QHBoxLayout()
+        distribute_layout.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignLeft)
+        main_layout.addLayout(distribute_layout)
+
+        distribute_button = QtGui.QPushButton("Distribute")
+        distribute_button.setMaximumWidth(100)
+        self.distribute_options_menu = QtGui.QComboBox()
+        self.distribute_options_menu.setMaximumWidth(100)
+        for option in ["Ease In", "Ease Out", "Linear"]:
+            self.distribute_options_menu.addItem(option)
+
+        distribute_layout.addWidget(distribute_button)
+        distribute_layout.addWidget(self.distribute_options_menu)
 
         # play layout
         play_layout = QtGui.QHBoxLayout()
@@ -282,11 +364,16 @@ class OverlapToolUI(RWindow):
         self.play_button.clicked.connect(self._play)
         self.reset_button.clicked.connect(self._reset)
         bake_button.clicked.connect(self._bake)
-        select_button.clicked.connect(self._set_parent_control)
-        self.hide_controls_button.clicked.connect(self._hide_controls)
-        select_dynamic_control.clicked.connect(self._select_dynamic_control)
+        set_button.clicked.connect(self._set_parent_control)
         save_button.clicked.connect(self._save)
         load_button.clicked.connect(self._load)
+        self.rig_box.activated.connect(self._select_dynamic_control)
+        select_dynamic_control.clicked.connect(self._select_dynamic_control)
+        select_all_button.clicked.connect(self._select_all_dynamic_controls)
+        self.batch_bake.triggered.connect(self._batch_bake)
+        self.batch_delete.triggered.connect(self._batch_delete)
+        self.confluence_page.triggered.connect(self.overlap_obj.confluence_page)
+        self.properties_page.triggered.connect(self.overlap_obj.properties_page)
 
     def _set_parent_control(self):
         """
@@ -306,8 +393,6 @@ class OverlapToolUI(RWindow):
         """
         Builds the Dynamic Rig.
         """
-        # clear widgets
-        self._clear(self.selected_controls)
 
         # gather overlap data
         self.rig_name = str(self.rig_name_input_box.text())
@@ -343,10 +428,6 @@ class OverlapToolUI(RWindow):
         self.overlap_obj.build(self.rig_name, self.parent_control,
                                self.controls, self.point_lock, self.frame_range)
 
-        # populate
-        for control in self.controls:
-            control = QtGui.QListWidgetItem(control)
-            self.selected_controls.addItem(control)
         rigs = self._find_rigs()
         rigs.reverse()
         for rig in rigs:
@@ -357,6 +438,9 @@ class OverlapToolUI(RWindow):
                 self.rig_box.addItem(rig)
                 index = self.rig_box.findText(rig)
                 self.rig_box.setCurrentIndex(index)
+
+        # select dynamic control
+        self._select_dynamic_control()
 
     def _find_rigs(self):
         """
@@ -374,7 +458,6 @@ class OverlapToolUI(RWindow):
         Deletes any dynamic rigs in the scene.
         """
         # clear widgets
-        self._clear(self.selected_controls)
         self._clear(self.parent_input_box)
         self._clear(self.rig_name_input_box)
 
@@ -387,11 +470,10 @@ class OverlapToolUI(RWindow):
             return
 
         # find rigs
-        rigs = self._find_rigs()
         rig_to_delete = None
+        rigs = self.overlap_obj.find_meta_attribute("rootGroup")
         for rig in rigs:
             rig_base_name = rig.split("_dynamic")[0]
-            rig_base_name = rig_base_name.split("|")[1]
             if rig_base_name == self.rig_box.currentText():
                 rig_to_delete = rig
 
@@ -401,13 +483,27 @@ class OverlapToolUI(RWindow):
         # clear rigs
         self.rig_box.removeItem(self.rig_box.currentIndex())
 
+    def _batch_delete(self):
+        """
+        Deletes all overlap rigs in the scene.
+        """
+        # delete rigs
+        self.overlap_obj.batch_delete()
+
+        # clear all widgets
+        widgets = [self.parent_input_box, self.rig_name_input_box, self.rig_box]
+        for widget in widgets:
+            self._clear(widget)
+
     def _bake(self):
         """
         Handles baking out the animation
         TODO:
             Baking even after you close the overlap tool (meta data node).
         """
-        frame_range = self.frame_range
+        start = self.start_frame_box.value()
+        end = self.end_frame_box.value()
+        frame_range = (start, end)
         controls = self.controls
         if self.rig_box.currentText() and not frame_range:
             controls = cmds.ls(sl=True)
@@ -429,6 +525,16 @@ class OverlapToolUI(RWindow):
         # bake animation
         bake_animation = self.overlap_obj.bake(controls, frame_range)
 
+    def _batch_bake(self):
+        """
+        Bakes out all rigs in the scene.
+        """
+        start = self.start_frame_box.value()
+        end = self.end_frame_box.value()
+        frame_range = (start, end)
+
+        self.overlap_obj.batch_bake(frame_range)
+
     def _play(self):
         """
         Responsible for interactive playback.
@@ -441,62 +547,40 @@ class OverlapToolUI(RWindow):
             self.play_button.setStyleSheet("background-color: light gray;")
             self.play_button.setText("PLAY")
             cmds.play(state=False)
+
     def _reset(self):
         """
         Resets the timeline for playback.
         """
         cmds.currentTime(self.start_frame)
 
-    def _hide_controls(self):
-        """
-        Responsible for hiding and showing controls.
-        """
-        rigs = self._find_rigs()
-        relatives = list()
-        if self.hide_controls_button.text() == "Hide Controls":
-            self.hide_controls_button.setText("Show Controls")
-            for rig in rigs:
-                rig_base_name = rig.split("_dynamic")[0]
-                rig_base_name = rig_base_name.split("|")[1]
-                if rig_base_name == self.rig_box.currentText():
-                    relatives = cmds.listRelatives(rig, ad=True)
-            for child in relatives:
-                if child.endswith("DyFKCtrl"):
-                    cmds.setAttr("{0}Shape.visibility".format(child), 0)
-                if child.endswith("DyCtrl"):
-                    cmds.setAttr("{0}Shape.visibility".format(child), 0)
-        elif self.hide_controls_button.text() == "Show Controls":
-            self.hide_controls_button.setText("Hide Controls")
-            for rig in rigs:
-                rig_base_name = rig.split("_dynamic")[0]
-                rig_base_name = rig_base_name.split("|")[1]
-                if rig_base_name == self.rig_box.currentText():
-                    relatives = cmds.listRelatives(rig, ad=True)
-            for child in relatives:
-                if child.endswith("DyFKCtrl"):
-                    cmds.setAttr("{0}Shape.visibility".format(child), 1)
-                if child.endswith("DyCtrl"):
-                    cmds.setAttr("{0}Shape.visibility".format(child), 1)
-
-    def _select_dynamic_control(self):
+    def _select_dynamic_control(self, select_all=None):
         """
         Selects the dynamic control.
+        @params:
+            select_all: Setting this to True will select all dynamic controls.
         """
-        rigs = self._find_rigs()
-        for rig in rigs:
-            rig_base_name = rig.split("_dynamic")[0]
-            rig_base_name = rig_base_name.split("|")[1]
-            if rig_base_name == self.rig_box.currentText():
-                relatives = cmds.listRelatives(rig, ad=True)
-                for child in relatives:
-                    if child.endswith("DyCtrl"):
-                        cmds.select(child)
+        controls = self.overlap_obj.find_meta_attribute("dynamicControl")
+        rigs = self.overlap_obj.find_meta_attribute("rigName")
+        for count, control in enumerate(controls):
+            if not select_all:
+                if rigs[count] == self.rig_box.currentText():
+                    if control.startswith(rigs[count]):
+                        cmds.select(control)
+                        break
+            cmds.select(control, add=True)
 
-        if not rigs:
+        if not controls:
             msg = "No Dynamic Control found."
             error = QtGui.QMessageBox.information(self, self.title,
                                                msg, self.button)
             return
+
+    def _select_all_dynamic_controls(self):
+        """
+        Selects all dynamic controls in the scene.
+        """
+        self._select_dynamic_control(select_all=True)
 
     def _data(self, mode="save"):
         """
@@ -506,16 +590,21 @@ class OverlapToolUI(RWindow):
         """
         overlap_data = dict()
         if mode == "save":
-            if self.parent_control:
-                overlap_data["rig_name"] = self.rig_name
-                overlap_data["parent_control"] = self.parent_control
-                overlap_data["selection"] = self.controls
-                overlap_data["point_lock"] = self.point_lock
-                overlap_data["frame_range"] = (self.start_frame, self.end_frame)
+            current_rig = self.rig_box.currentText()
+            meta_nodes = cmds.ls(type="network")
+            meta_node = None
+            for node in meta_nodes:
+                if node.endswith("DyMETA"):
+                    if node.startswith(current_rig):
+                        meta_node = node
+            if meta_node:
+                attributes = cmds.listAttr(meta_node, ud=True)
+                for attribute in attributes:
+                    value = cmds.getAttr("{0}.{1}".format(meta_node, attribute))
+                    overlap_data[attribute] = value
                 path = self.overlap_obj._json_save(overlap_data)
                 return path
-            else:
-                return overlap_data
+            return overlap_data
         elif mode == "load":
             # data
             self.overlap_data = self.overlap_obj._json_load()
@@ -523,11 +612,14 @@ class OverlapToolUI(RWindow):
             # cancel
             if not self.overlap_data:
                 return
-            self.rig_name = self.overlap_data["rig_name"]
-            self.parent_control = self.overlap_data["parent_control"]
-            self.controls = self.overlap_data["selection"]
-            self.point_lock = self.overlap_data["point_lock"]
-            self.start_frame, self.end_frame = self.overlap_data["frame_range"]
+            self.rootGroup = self.overlap_data["rootGroup"]
+            self.rig_name = self.overlap_data["rigName"]
+            self.parent_control = self.overlap_data["parentControl"]
+            self.controls = self.overlap_data["controls"]
+            self.point_lock = int(self.overlap_data["pointLock"])
+            self.start_frame = int(self.overlap_data["startFrame"])
+            self.end_frame = int(self.overlap_data["endFrame"])
+            self.dynamic_control = self.overlap_data["dynamicControl"]
 
     def _save(self):
         """
@@ -558,13 +650,13 @@ class OverlapToolUI(RWindow):
 
         # populate
         self.rig_box.addItem(self.rig_name)
+        index = self.rig_box.findText(self.rig_name)
+        self.rig_box.setCurrentIndex(index)
         self.rig_name_input_box.setText(self.rig_name)
         self.parent_input_box.setText(self.parent_control)
         for control in self.controls:
             cmds.select(control, add=True)
-            control = QtGui.QListWidgetItem(control)
-            self.selected_controls.addItem(control)
-        self.point_lock_option.setCurrentIndex(self.overlap_data["point_lock"])
+        self.point_lock_option.setCurrentIndex(self.point_lock)
         self.start_frame_box.setValue(self.start_frame)
         self.end_frame_box.setValue(self.end_frame)
 
