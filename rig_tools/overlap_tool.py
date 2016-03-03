@@ -46,6 +46,9 @@ import re
 import json
 from maya import cmds, mel
 
+# third party
+from PyQt4 import QtGui, QtCore
+
 # external
 from rig_tools.core import control
 
@@ -71,6 +74,7 @@ class OverlapTool(object):
         The Initializer
         """
         self.curve = None
+        self.nucleus = None
         self.joints = list()
         self.controls = None
         self.base_ctrl = None
@@ -145,6 +149,23 @@ class OverlapTool(object):
         # bake
         cmds.bakeResults(controls, sm=True, t=(start, end), at=TR_ATTRS)
 
+    def batch_bake(self, frame_range=None):
+        """
+        Bakes out all rigs in the scene.
+        @params:
+            frame_range: If no frame range give, it will bake based on scene.
+        """
+        if not frame_range:
+            self.start_frame = cmds.playbackOptions(q=True, min=True)
+            self.end_frame = cmds.playbackOptions(q=True, max=True)
+
+        # grab controls
+        controls = self.find_meta_attribute("controls")
+
+        # bake
+        if controls:
+            self.bake(controls, frame_range)
+
     def delete(self, rig):
         """
         Delete root group and clear items in the selected controls.
@@ -157,11 +178,42 @@ class OverlapTool(object):
         # delete rig
         cmds.delete(rig)
 
-        # clear meta nodes from scene
+        # delete meta node
+        for node in cmds.ls(type="network"):
+            if node.endswith("DyMETA"):
+                root_group = cmds.getAttr("{0}.rootGroup".format(node))
+                if root_group == rig:
+                    cmds.delete(node)
+
+    def batch_delete(self):
+        """
+        Deletes all overlap rigs in the scene.
+        """
+        # delete all dynamic rigs
+        rigs = self.find_meta_attribute("rootGroup")
+        for rig in rigs:
+            cmds.delete(rig)
+        for node in cmds.ls(type="network"):
+            if node.endswith("DyMETA"):
+                cmds.delete(node)
+
+    def find_meta_attribute(self, attribute):
+        """
+        Tool for finding specific meta data.
+        """
+        # find rigs
+        meta = list()
         meta_nodes = cmds.ls(type="network")
         for node in meta_nodes:
             if node.endswith("DyMETA"):
-                cmds.delete(node)
+                value = cmds.getAttr("{0}.{1}".format(node, attribute))
+                if attribute == "controls":
+                    meta.extend(value)
+                    continue
+                meta.append(value)
+        if attribute == "controls":
+            return meta
+        return list(set(meta))
 
     def _transfer_keys(self, from_controls, to_controls):
         """
@@ -182,25 +234,68 @@ class OverlapTool(object):
     def _build_fk_controls(self):
         """
         Builds the FK system for the Dynamic system.
+
+        NOTE:
+            To consider keys worldspace off the control will not be good enough.
+            In order to maintain local translations that match the original
+            control, the world space must be grabbed from the transform holding
+            the transforms for the control. Also, the local transforms on
+            the new locator controls must match those on the FK control. If
+            they don't, copying keys will offset the controls.
         """
-        controls = list()
-        self.fk_groups = list()
+        locators = list()
+        groups = list()
         for count, joint in enumerate(self.fk_joints):
-            control_name = self._get_unique_name("dynamicControl", "DyFKCtrl")
-            control = cmds.spaceLocator(n=control_name)[0]
-            cmds.setAttr("{0}.overrideEnabled".format(control), 1)
-            cmds.setAttr("{0}.overrideColor".format(control), 13)
+            cmds.select(cl=True)
+
+            # naming
+            locator_name = self._get_unique_name("dynamicControl", "DyFKCtrl")
+            group_name = self._get_unique_name("dynamicControl", "DyFKCtrlGrp")
+
+            # global and local transforms
+            control = self.controls[count]
+            parent = cmds.listRelatives(control, p=True)
+            pad_position = cmds.xform(control, q=True, ws=True, rp=True)
+            pad_rotation = cmds.xform(control, q=True, ws=True, ro=True)
+            if parent:
+                pad_position = cmds.xform(parent, q=True, ws=True, rp=True)
+                pad_rotation = cmds.xform(parent, q=True, ws=True, ro=True)
+            loc_position = cmds.xform(control, q=True, os=True, rp=True)
+            loc_rotation = cmds.xform(control, q=True, os=True, ro=True)
+
+            # build control
+            locator = cmds.spaceLocator(n=locator_name)[0]
+            group = cmds.group(n=group_name, em=True)
+            cmds.parent(locator, group)
+
+            # snap and maintain key offset
+            cmds.xform(group, ws=True, t=pad_position)
+            cmds.xform(group, ws=True, ro=pad_rotation)
+            cmds.xform(locator, os=True, t=loc_position)
+            cmds.xform(locator, os=True, ro=loc_rotation)
+
+            # colorize
+            cmds.setAttr("{0}.overrideEnabled".format(locator), 1)
+            cmds.setAttr("{0}.overrideColor".format(locator), 13)
             for attr in SCALE_ATTRS:
-                cmds.setAttr("{0}.{1}".format(control, attr), 10)
-            controls.append(control)
-            self._snap_control(control, False, joint, False)
-            if count >= 1:
-                cmds.parent(control, controls[count -1])
-        if controls:
-            fk_group_name = self._get_unique_name("dynamicControl", "DyFkGrp")
-            self.fk_group = cmds.group(n=fk_group_name, em=True)
-            cmds.parent(controls[0], self.fk_group)
-        return controls
+                cmds.setAttr("{0}.{1}".format(locator, attr), 10)
+
+            # retain
+            locators.append(locator)
+            groups.append(group)
+
+        # build hierarchy
+        for count, locator in enumerate(locators, 1):
+            if count == len(groups):
+                break
+            cmds.parent(groups[count], locator)
+
+        # parent to rig hierarchy
+        fk_group_name = self._get_unique_name("dynamicControl", "DyFkGrp")
+        self.fk_group = cmds.group(n=fk_group_name, em=True)
+        cmds.parent(groups[0], self.fk_group)
+
+        return locators
 
     def _connect_fk_controls(self):
         """
@@ -271,7 +366,8 @@ class OverlapTool(object):
         for nuc in nucleus:
             if not nuc.endswith("DyNuc"):
                 self.nucleus = cmds.rename(nuc, nucleus_name)
-        cmds.parent(self.nucleus, self.pos_group)
+        if self.nucleus:
+            cmds.parent(self.nucleus, self.pos_group)
 
         # create ikSplineSolver
         dynamic_ikSpline_name = self._get_unique_name("dynamicIkSpline", "DyIk")
@@ -310,9 +406,11 @@ class OverlapTool(object):
         dyCtrl = self.dynamic_control
         hairSys = self.hair_system
         fol = self.follicle
+        nuc = self.nucleus
 
-        # turn of Nuc Solver
+        # turn off Nuc Solver and set start frame
         cmds.setAttr("{0}Shape.active".format(hairSys), 0)
+        cmds.setAttr("{0}.startFrame".format(nuc), self.start_frame)
 
         # let's begin
         self._dynamic_settings(dyCtrl, hairSys, fol)
@@ -349,29 +447,21 @@ class OverlapTool(object):
         cmds.connectAttr("{0}.bendResistance".format(dyCtrl),
                          "{0}Shape.bendResistance".format(hairSys), f=1)
 
-        # drag
-        cmds.addAttr(dyCtrl, ln="drag", at="float",
-                     dv=0.05, k=1, hnv=1, hxv=1)
-        cmds.connectAttr("{0}.drag".format(dyCtrl),
-                         "{0}Shape.drag".format(hairSys), f=1)
+        # stiffness
+        cmds.addAttr(dyCtrl, ln="stiffness", at="float", k=1, hnv=1, hxv=1)
+        cmds.connectAttr("{0}.stiffness".format(dyCtrl),
+                         "{0}Shape.stiffness".format(hairSys), f=1)
+
+        # motion drag
+        cmds.addAttr(dyCtrl, ln="motionDrag", at="float", k=1, hnv=1, hxv=1)
+        cmds.connectAttr("{0}.motionDrag".format(dyCtrl),
+                         "{0}Shape.motionDrag".format(hairSys), f=1)
 
         # damp
         cmds.addAttr(dyCtrl, ln="damp", at="float",
                      dv=0, k=1, hnv=1, hxv=1)
         cmds.connectAttr("{0}.damp".format(dyCtrl),
                          "{0}Shape.damp".format(hairSys), f=1)
-
-        # start frame (nucleus)
-        cmds.addAttr(dyCtrl, ln="startFrame", at="long",
-                     dv=self.start_frame, k=1, hnv=1, hxv=1)
-        cmds.connectAttr("{0}.startFrame".format(dyCtrl),
-                         "{0}.startFrame".format(self.nucleus))
-
-        # space scale
-        # cmds.addAttr(dyCtrl, ln="spaceScale", at="float",
-                     # dv=0.01, k=1, hnv=1, hxv=1)
-        # cmds.connectAttr("{0}.spaceScale".format(dyCtrl),
-                         # "{0}.spaceScale".format(self.nucleus))
 
     def _attraction_settings(self, dyCtrl, hairSys, fol):
         """
@@ -430,21 +520,35 @@ class OverlapTool(object):
         cmds.addAttr(dyCtrl, ln="control",at="enum",
                      en="Settings:", k=True)
         cmds.setAttr("{0}.control".format(dyCtrl), l=True)
-        cmds.addAttr(dyCtrl, ln="scaleControls", at="float",
-                     dv=1, k=True)
+
+        # show/hide attributes
+        self._display_attributes("locatorDisplay", self.fk_group, dyCtrl)
+        self._display_attributes("dynamicDisplay", self.dynamic_control, dyCtrl)
 
         # scale locators
+        cmds.addAttr(dyCtrl, ln="locatorControlScale", at="float", dv=1, k=True)
         for control in self.fk_controls:
             for attr in LOCAL_SCALE_ATTRS:
-                cmds.connectAttr("{0}.scaleControls".format(dyCtrl),
+                cmds.connectAttr("{0}.locatorControlScale".format(dyCtrl),
                                  "{0}Shape.{1}".format(control, attr))
-        cmds.addAttr(dyCtrl, ln="scaleDynamicControl", at="float",
-                     dv=1, k=True)
 
         # scale dynamic control
+        cmds.addAttr(dyCtrl, ln="dynamicControlScale", at="float", dv=1, k=True)
         for attr in SCALE_ATTRS:
-            cmds.connectAttr("{0}.scaleDynamicControl".format(dyCtrl),
+            cmds.connectAttr("{0}.dynamicControlScale".format(dyCtrl),
                              "{0}.{1}".format(dyCtrl, attr))
+
+    def _display_attributes(self, attribute, group, control):
+        """
+        Set's the show and hide attributes for the dynamic and locator controls.
+        """
+        # show/hide controls
+        cmds.addAttr(control, ln=attribute, at="long",
+                     dv=1,min=0, max=1, k=True)
+
+        # hide locators
+        cmds.connectAttr("{0}.{1}".format(control, attribute),
+                         "{0}.visibility".format(group))
 
     def _hide(self):
         """
@@ -457,27 +561,6 @@ class OverlapTool(object):
                     cmds.hide(item)
                 except ValueError:
                     continue
-
-    def _get_joints(self, base_ctrl):
-        """
-        Responsible for collecting up all corrisponding joints based on
-        selected controls.
-        """
-        # filter through connections
-        inbetween_joints = list()
-        for control in self.controls:
-            joint = cmds.listConnections(control, type=JOINT)
-            if not joint:
-                joint = cmds.listConnections(control, type=CON)
-                joint = cmds.listConnections(joint, type=JOINT)
-            try:
-                joint = list(set(joint))
-                inbetween_joints.append(joint[0])
-            except TypeError:
-                continue
-
-        # result
-        return inbetween_joints
 
     def _duplicate_joints(self, suffix):
         """
@@ -552,26 +635,20 @@ class OverlapTool(object):
         target = self.controls[0]
 
         # snap control
-        self._snap_control(self.dynamic_control, self.pos_group, target, True)
+        self._snap_control(self.dynamic_control, self.pos_group, target)
         cmds.parent(self.pos_group, self.root_group)
 
-    def _snap_control(self, control, group, target, history):
+    def _snap_control(self, control, group, target):
         """
         Handles snapping controls.
         """
         snap_tuple = (control, group)
-        if not group:
-            snap_tuple = (control,)
         # snap the control
         for obj in snap_tuple:
             tmp_constraint = cmds.parentConstraint(target, obj)
             cmds.delete(tmp_constraint)
-        if group:
-            cmds.parent(control, group)
-        if history:
-            cmds.makeIdentity(control, apply=True)
-        else:
-            cmds.makeIdentity(control, apply=True, t=True)
+        cmds.parent(control, group)
+        cmds.makeIdentity(control, apply=True)
         cmds.DeleteHistory(control)
 
     def _finalize(self):
@@ -584,7 +661,7 @@ class OverlapTool(object):
         for item in (self.fk_group, self.dynamic_joints[0]):
             cmds.parentConstraint(self.parent_control, item, mo=True)
         for count, control in enumerate(self.controls):
-            cmds.parentConstraint(self.dynamic_joints[count], control, mo=False)
+            cmds.parentConstraint(self.dynamic_joints[count], control, mo=True)
 
         # lock and hide attributes on dynamic control
         for attr in ATTRS:
@@ -600,12 +677,14 @@ class OverlapTool(object):
         meta_node_name = self._get_unique_name("metaNode", "DyMETA")
         meta_node = cmds.rename(network_node, meta_node_name)
         data = {
+                "rootGroup" : self.root_group,
                 "rigName" : self.rig_name,
                 "parentControl" : self.parent_control,
                 "controls" : self.controls,
                 "pointLock" : self.point_lock,
                 "startFrame" : self.start_frame,
-                "endFrame" : self.end_frame}
+                "endFrame" : self.end_frame,
+                "dynamicControl" : self.dynamic_control}
         # build data
         for meta, data in data.iteritems():
             if meta == "controls":
@@ -662,3 +741,18 @@ class OverlapTool(object):
         fobj = open(path)
         data = json.load(fobj)
         return data
+
+    def properties_page(self):
+        """
+        Opens the doc page for 2016 hair properties.
+        """
+        url = "http://help.autodesk.com/view/MAYAUL/2016/ENU" +\
+              "/index.html?contextId=NODES-HAIRSYSTEM"
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
+
+    def confluence_page(self):
+        """
+        Opens Confluence page on overlap tool.
+        """
+        url = "https://confluence.reelfx.com/display/ANIM/Overlap+Tool"
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(url))
