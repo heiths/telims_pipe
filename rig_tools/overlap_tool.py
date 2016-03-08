@@ -24,12 +24,12 @@
         point_lock: "base" = 0, "both-ends" = 1
         frame_range: Tuple (int(start), int(end))
 
+:see also:
+    ani_tools/ui/overlap_tool_ui.py
+
 TODO:
-    - Batch Bake.
     - Batch Build.
-    - Batch Delete.
     - Global Save and Load settings.
-    - Part naming for multiple dynamic rigs in the scene.
 
 :NOTES:
     The unique naming in this script is a fail safe. It'll be layered with
@@ -684,7 +684,8 @@ class OverlapTool(object):
                 "pointLock" : self.point_lock,
                 "startFrame" : self.start_frame,
                 "endFrame" : self.end_frame,
-                "dynamicControl" : self.dynamic_control}
+                "dynamicControl" : self.dynamic_control,
+                "metaNode" : meta_node}
         # build data
         for meta, data in data.iteritems():
             if meta == "controls":
