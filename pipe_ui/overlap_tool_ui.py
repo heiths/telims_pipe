@@ -89,24 +89,24 @@ class OverlapToolUI(RMainWindow):
 
         # styling
         styling = """
-                QMenu {
-                    text-align: left;
-                    background-color: #444444;
-                    border: 1px solid grey;
-                }
+                  QMenu {
+                      text-align: left;
+                      background-color: #444444;
+                      border: 1px solid grey;
+                  }
 
-                QMenu::item::selected {
-                    background-color: #4c7380;
-                }
+                  QMenu::item::selected {
+                      background-color: #4c7380;
+                  }
 
-                QMenuBar::item::selected {
-                    background-color: #4c7380;
-                }
+                  QMenuBar::item::selected {
+                      background-color: #4c7380;
+                  }
 
-                QComboBox::item {
-                    height: 30px;
-                }
-                 """
+                  QComboBox::item {
+                      height: 30px;
+                  }
+                  """
 
         # build main window
         self.setObjectName(window_name)
@@ -285,15 +285,12 @@ class OverlapToolUI(RMainWindow):
         self.start_frame_box.setMaximumWidth(70)
         self.start_frame_box.setMaximum(1000)
         self.start_frame_box.setValue(self.start_frame)
-        self.start_frame_box.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.end_frame_box = QtGui.QSpinBox()
         self.end_frame_box.setMaximum(1000)
         self.end_frame_box.setValue(self.end_frame)
         self.end_frame_box.setMaximumWidth(70)
-        self.end_frame_box.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         point_lock_options = ('Base', 'Both Ends')
         point_lock_label = QtGui.QLabel("Attached At: ")
-        point_lock_label.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.point_lock_option = QtGui.QComboBox()
         for option in point_lock_options:
             self.point_lock_option.addItem(option)
@@ -301,7 +298,6 @@ class OverlapToolUI(RMainWindow):
         frame_range_layout.addWidget(self.end_frame_box)
         frame_range_layout.addWidget(point_lock_label)
         frame_range_layout.addWidget(self.point_lock_option)
-
 
         # build layout
         build_layout = QtGui.QHBoxLayout()
@@ -345,9 +341,13 @@ class OverlapToolUI(RMainWindow):
         self.distribute_options_menu.setMaximumWidth(100)
         for option in ["Ease In", "Ease Out", "Linear"]:
             self.distribute_options_menu.addItem(option)
+        stiffness_ramp = QtGui.QPushButton("Stiffness")
+        attraction_ramp = QtGui.QPushButton("Attraction")
 
         distribute_layout.addWidget(distribute_button)
         distribute_layout.addWidget(self.distribute_options_menu)
+        distribute_layout.addWidget(stiffness_ramp)
+        distribute_layout.addWidget(attraction_ramp)
 
         # play layout
         play_layout = QtGui.QHBoxLayout()
@@ -375,6 +375,8 @@ class OverlapToolUI(RMainWindow):
         self.batch_delete.triggered.connect(self._batch_delete)
         self.confluence_page.triggered.connect(self.overlap_obj.confluence_page)
         self.properties_page.triggered.connect(self.overlap_obj.properties_page)
+        stiffness_ramp.clicked.connect(self._stiffness_ramp)
+        attraction_ramp.clicked.connect(self._attraction_ramp)
 
     def _set_parent_control(self):
         """
@@ -426,7 +428,7 @@ class OverlapToolUI(RMainWindow):
 
         # build
         self.overlap_obj.build(self.rig_name, self.parent_control,
-                               self.controls, self.point_lock, self.frame_range)
+                           self.controls, self.point_lock, self.frame_range)
 
         rigs = self._find_rigs()
         rigs.reverse()
@@ -455,19 +457,14 @@ class OverlapToolUI(RMainWindow):
 
     def _delete(self):
         """
-        Deletes any dynamic rigs in the scene.
+        Deletes any dynamic rig in the scene.
         """
         # clear widgets
         self._clear(self.parent_input_box)
         self._clear(self.rig_name_input_box)
 
         # check for rigs
-        current_rig = self.rig_box.currentText()
-        if not current_rig:
-            msg = "No Dynamic Rig found."
-            error = QtGui.QMessageBox.information(self, self.title,
-                                                  msg, self.button)
-            return
+        self._rig_check()
 
         # find rigs
         rig_to_delete = None
@@ -488,6 +485,7 @@ class OverlapToolUI(RMainWindow):
         Deletes all overlap rigs in the scene.
         """
         # delete rigs
+        self._rig_check()
         self.overlap_obj.batch_delete()
 
         # clear all widgets
@@ -529,6 +527,7 @@ class OverlapToolUI(RMainWindow):
         """
         Bakes out all rigs in the scene.
         """
+        self._rig_check()
         start = self.start_frame_box.value()
         end = self.end_frame_box.value()
         frame_range = (start, end)
@@ -558,23 +557,42 @@ class OverlapToolUI(RMainWindow):
         """
         Selects the dynamic control.
         """
+        self._rig_check()
         controls = self.overlap_obj.find_meta_attribute("dynamicControl")
         for control in controls:
             if control.startswith(self.rig_box.currentText()):
                 cmds.select(control, r=True)
 
-        if not controls:
-            msg = "No Dynamic Control found."
-            error = QtGui.QMessageBox.information(self, self.title,
-                                               msg, self.button)
-            return
 
     def _select_all_dynamic_controls(self):
         """
         Selects all dynamic controls in the scene.
         """
+        self._rig_check()
         controls = self.overlap_obj.find_meta_attribute("dynamicControl")
         cmds.select(controls, r=True)
+
+    def _attraction_ramp(self):
+        """
+        Opens Attraction Ramp.
+        """
+        self._rig_check()
+        hair_systems = self.overlap_obj.find_meta_attribute("hairSystem")
+        for system in hair_systems:
+            if system.startswith(self.rig_box.currentText()):
+                ramp = "editRampAttribute " + system + "Shape.attractionScale"
+                mel.eval(ramp)
+
+    def _stiffness_ramp(self):
+        """
+        Opens Stiffness Ramp.
+        """
+        self._rig_check()
+        hair_systems = self.overlap_obj.find_meta_attribute("hairSystem")
+        for system in hair_systems:
+            if system.startswith(self.rig_box.currentText()):
+                ramp = "editRampAttribute " + system + "Shape.stiffnessScale"
+                mel.eval(ramp)
 
     def _data(self, mode="save"):
         """
@@ -683,6 +701,17 @@ class OverlapToolUI(RMainWindow):
             if state:
                 continue
             cmds.setAttr("{0}.{1}".format(self.dynamic_control, key), value)
+
+    def _rig_check(self):
+        """
+        Checks for existing rigs.
+        """
+        current_rig = self.rig_box.currentText()
+        if not current_rig:
+            msg = "No Dynamic Rig found."
+            error = QtGui.QMessageBox.information(self, self.title,
+                                                  msg, self.button)
+            return
 
     def _clear(self, widget):
         """
