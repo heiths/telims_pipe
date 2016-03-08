@@ -19,13 +19,13 @@
     from ani_tools.rmaya.overlap_tool import overlap_tool
     overlap_tool.main()
 
+:see also:
+    ani_tools/rmaya/overlap_tool.py
+
 TODO:
-    - Batch Bake.
     - Batch Build.
-    - Individual attributes for dynamic FK controls (curve attract).
     - Global Save and Load settings.
     - Part naming for multiple dynamic rigs in the scene.
-    - Delete individual rigs, not just all.
 
 :NOTES:
     The unique naming in this script is a fail safe. It'll be layered with
@@ -87,25 +87,26 @@ class OverlapToolUI(RMainWindow):
         """
         window_name = "Overlap Tool"
 
-        # menu styling
-        menu_styling = """
-        QMenu {
-            text-align: left;
-            background-color: #444444;
-            border: 1px solid grey;
-        }
+        # styling
+        styling = """
+                QMenu {
+                    text-align: left;
+                    background-color: #444444;
+                    border: 1px solid grey;
+                }
 
-        QMenu::item::selected {
-            background-color: #4c7380;
-        }
+                QMenu::item::selected {
+                    background-color: #4c7380;
+                }
 
-        QMenuBar::item::selected {
-            background-color: #4c7380;
-        }
+                QMenuBar::item::selected {
+                    background-color: #4c7380;
+                }
 
-        QComboBox::item {
-            height: 30px;
-        }"""
+                QComboBox::item {
+                    height: 30px;
+                }
+                 """
 
         # build main window
         self.setObjectName(window_name)
@@ -126,7 +127,7 @@ class OverlapToolUI(RMainWindow):
 
         # menu bar
         self.menu = QtGui.QMenuBar(self)
-        self.menu.setStyleSheet(menu_styling)
+        self.menu.setStyleSheet(styling)
         self.setMenuBar(self.menu)
 
         # file
@@ -228,7 +229,7 @@ class OverlapToolUI(RMainWindow):
         rig_box_label = QtGui.QLabel("Rigs:")
         rig_box_label.setMaximumWidth(35)
         self.rig_box = QtGui.QComboBox()
-        self.rig_box.setStyleSheet(menu_styling)
+        self.rig_box.setStyleSheet(styling)
         rigs = self._find_rigs()
         select_all_button = QtGui.QPushButton("Select All")
         select_all_button.setMaximumWidth(60)
@@ -393,7 +394,6 @@ class OverlapToolUI(RMainWindow):
         """
         Builds the Dynamic Rig.
         """
-
         # gather overlap data
         self.rig_name = str(self.rig_name_input_box.text())
         self.controls = cmds.ls(sl=True)
@@ -554,21 +554,14 @@ class OverlapToolUI(RMainWindow):
         """
         cmds.currentTime(self.start_frame)
 
-    def _select_dynamic_control(self, select_all=None):
+    def _select_dynamic_control(self):
         """
         Selects the dynamic control.
-        @params:
-            select_all: Setting this to True will select all dynamic controls.
         """
         controls = self.overlap_obj.find_meta_attribute("dynamicControl")
-        rigs = self.overlap_obj.find_meta_attribute("rigName")
-        for count, control in enumerate(controls):
-            if not select_all:
-                if rigs[count] == self.rig_box.currentText():
-                    if control.startswith(rigs[count]):
-                        cmds.select(control)
-                        break
-            cmds.select(control, add=True)
+        for control in controls:
+            if control.startswith(self.rig_box.currentText()):
+                cmds.select(control, r=True)
 
         if not controls:
             msg = "No Dynamic Control found."
@@ -580,7 +573,8 @@ class OverlapToolUI(RMainWindow):
         """
         Selects all dynamic controls in the scene.
         """
-        self._select_dynamic_control(select_all=True)
+        controls = self.overlap_obj.find_meta_attribute("dynamicControl")
+        cmds.select(controls, r=True)
 
     def _data(self, mode="save"):
         """
@@ -589,19 +583,30 @@ class OverlapToolUI(RMainWindow):
             mode: Can either be "save" or "load".
         """
         overlap_data = dict()
+        dy_attrs = dict()
         if mode == "save":
             current_rig = self.rig_box.currentText()
-            meta_nodes = cmds.ls(type="network")
+            meta_nodes = self.overlap_obj.find_meta_attribute("metaNode")
+            controls = self.overlap_obj.find_meta_attribute("dynamicControl")
             meta_node = None
             for node in meta_nodes:
-                if node.endswith("DyMETA"):
-                    if node.startswith(current_rig):
-                        meta_node = node
+                if node.startswith(current_rig):
+                    meta_node = node
             if meta_node:
+                # data
                 attributes = cmds.listAttr(meta_node, ud=True)
                 for attribute in attributes:
                     value = cmds.getAttr("{0}.{1}".format(meta_node, attribute))
                     overlap_data[attribute] = value
+                # attributes
+                for control in controls:
+                    if control.startswith(current_rig):
+                        attributes = cmds.listAttr(control, ud=True)
+                        for attribute in attributes:
+                            value = cmds.getAttr("{0}.{1}".format(control,
+                                                                  attribute))
+                            dy_attrs[attribute] = value
+                        overlap_data["dynamicAttributes"] = dy_attrs
                 path = self.overlap_obj._json_save(overlap_data)
                 return path
             return overlap_data
@@ -612,7 +617,8 @@ class OverlapToolUI(RMainWindow):
             # cancel
             if not self.overlap_data:
                 return
-            self.rootGroup = self.overlap_data["rootGroup"]
+            # new loaded data
+            self.root_group = self.overlap_data["rootGroup"]
             self.rig_name = self.overlap_data["rigName"]
             self.parent_control = self.overlap_data["parentControl"]
             self.controls = self.overlap_data["controls"]
@@ -634,7 +640,7 @@ class OverlapToolUI(RMainWindow):
         elif os.path.isfile(path):
             msg = "Data successfully saved to: {0}".format(path)
             info = QtGui.QMessageBox.information(self, "Success",
-                                              msg, self.button)
+                                                 msg, self.button)
 
     def _load(self):
         """
@@ -645,8 +651,14 @@ class OverlapToolUI(RMainWindow):
             return
 
         msg = "Your data has successfully been loaded, please press 'Build'."
-        info = QtGui.QMessageBox.information(self, "Success",
-                                          msg, self.button)
+        build_button = QtGui.QPushButton("Build")
+        warning = QtGui.QMessageBox()
+        warning.setText(msg)
+        warning.addButton(QtGui.QPushButton("Build"), QtGui.QMessageBox.YesRole)
+        warning.addButton(QtGui.QPushButton("Cancel"), QtGui.QMessageBox.NoRole)
+        build = warning.exec_()
+        if build == 1:
+            return
 
         # populate
         self.rig_box.addItem(self.rig_name)
@@ -659,6 +671,18 @@ class OverlapToolUI(RMainWindow):
         self.point_lock_option.setCurrentIndex(self.point_lock)
         self.start_frame_box.setValue(self.start_frame)
         self.end_frame_box.setValue(self.end_frame)
+
+        # build
+        self._build()
+
+        # set dynamic control attributes
+        dy_attrs = self.overlap_data["dynamicAttributes"]
+        for key, value in dy_attrs.iteritems():
+            state = cmds.getAttr("{0}.{1}".format(self.dynamic_control, key),
+                                                  l=True)
+            if state:
+                continue
+            cmds.setAttr("{0}.{1}".format(self.dynamic_control, key), value)
 
     def _clear(self, widget):
         """
