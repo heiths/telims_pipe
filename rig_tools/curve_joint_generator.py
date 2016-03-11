@@ -34,7 +34,7 @@ class CurveJointGenerator(QtGui.QDialog):
     Tool for generating joints on a curve.
     """
     def __init__(self, gui=True, joints=10, del_curve=True, del_ikHandle=True,
-                 asset = "asset", side="l", part="part"):
+                 asset = "asset", side="l", part="part", suffix="bindJnt"):
         """
         Defines the curve joint generator.
 
@@ -55,6 +55,7 @@ class CurveJointGenerator(QtGui.QDialog):
         self.asset = asset
         self.side = side
         self.part = part
+        self.suffix = suffix
 
         if self.gui:
             self._build_ui()
@@ -114,9 +115,14 @@ class CurveJointGenerator(QtGui.QDialog):
         for side in settings.sides:
             self.side.addItem(side)
         self.part_name = QtGui.QLineEdit("PartOfAsset")
+        self.suffix = QtGui.QComboBox()
+        for suffix in settings.suffixes:
+            if suffix.endswith("Jnt") and suffix != "endJnt":
+                self.suffix.addItem(suffix)
         name_layout.addWidget(self.asset_name)
         name_layout.addWidget(self.side)
         name_layout.addWidget(self.part_name)
+        name_layout.addWidget(self.suffix)
 
         # build layout
         build_layout = QtGui.QHBoxLayout()
@@ -140,16 +146,18 @@ class CurveJointGenerator(QtGui.QDialog):
         side = self.side
         part = self.part
         joints = self.joints
+        suffix = self.suffix
 
         if self.gui:
             asset = self.asset_name.text()
             side = self.side.currentText()
             part = self.part_name.text()
             joints = self.joints_box.value()
+            suffix = self.suffix.currentText()
         try:
-            self.curve = pm.ls(sl=True)[0]
+            curve = pm.ls(sl=True)[0]
             curve_name = NameUtils.get_unique_name(asset, side, part, "crv")
-            pm.rename(self.curve, curve_name)
+            self.curve = pm.rename(curve, curve_name)
         except IndexError:
             pm.warning("Please select a curve")
             return
@@ -161,12 +169,18 @@ class CurveJointGenerator(QtGui.QDialog):
         pm.select(cl=True)
 
         # # create the joints
+        curve_joints = list()
         for x in xrange(int(joints) + 1):
-            name = NameUtils.get_unique_name(asset, side, part, "jnt")
-            pm.joint(n=name)
+            name = NameUtils.get_unique_name(asset, side, part, suffix)
+            joint = pm.joint(n=name)
+            curve_joints.append(joint)
 
             joint_position = (x * equal_spacing)
             pm.move(0, joint_position, 0)
+        
+        # rename last joint
+        last_joint = curve_joints[-1]
+        pm.rename(last_joint, last_joint + "End")
 
         root_joint = pm.selected()[0].root()
         end_joint = pm.ls(sl=True)[0]

@@ -49,6 +49,7 @@ class JointRenamer(QtGui.QDialog):
         self.asset = None
         self.side = None
         self.part = None
+        self.suffix = None
 
         self.build_ui()
 
@@ -66,8 +67,8 @@ class JointRenamer(QtGui.QDialog):
         # create window
         parent = UIUtils.get_maya_window()
         window = QtGui.QMainWindow(parent)
-        window.setMinimumSize(300, 80)
-        window.setMaximumSize(300, 80)
+        window.setMinimumSize(350, 80)
+        window.setMaximumSize(350, 80)
         window.setObjectName(window_name)
         window.setWindowTitle("Joint Renamer")
 
@@ -87,9 +88,15 @@ class JointRenamer(QtGui.QDialog):
         for side in settings.sides:
             self.side.addItem(side)
         self.part_name = QtGui.QLineEdit("PartOfAsset")
+
+        self.suffix = QtGui.QComboBox()
+        for suffix in settings.suffixes:
+            if suffix.endswith("Jnt"):
+                self.suffix.addItem(suffix)
         name_layout.addWidget(self.asset_name)
         name_layout.addWidget(self.side)
         name_layout.addWidget(self.part_name)
+        name_layout.addWidget(self.suffix)
 
         # build layout
         build_layout = QtGui.QHBoxLayout()
@@ -113,7 +120,8 @@ class JointRenamer(QtGui.QDialog):
         asset = self.asset_name.text()
         side = self.side.currentText()
         part = self.part_name.text()
+        suffix = self.suffix.currentText()
 
         # build
-        self.renamer_obj.rename(asset, side, part)
+        self.renamer_obj.rename(asset, side, part, suffix)
 

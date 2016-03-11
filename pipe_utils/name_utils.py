@@ -48,24 +48,11 @@ class NameUtils(object):
             side: Right, Left, or Center (r, l, c).
             part: The part of the asset, i.e., arm, door, tail.
             suffix: The name of the object, i.e., loc, jnt, geo.
-            security: The number of parts that can be named.
-
-        :NOTE:
-            Security is set to 50 by default and does not need to be set unless
-            a higher about of parts are needed.
         """
 
         # naming convention
         root_name = '{0}_{1}_{2}0{3}_{4}'
         name = root_name.format(asset, side, part, str(1), suffix)
-
-        # check settings
-        if not side in settings.sides:
-            OpenMaya.MGlobal.displayError("Side is not valid")
-            return
-        if not suffix in settings.suffixes:
-            OpenMaya.MGlobal.displayError("Suffix is not valid")
-            return
 
         count = 1
         while cmds.objExists(name):

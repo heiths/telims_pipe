@@ -43,14 +43,13 @@ sides = ['c', 'l', 'r']
 # suffixes
 suffixes = [
             "grp", # group
-            "jnt", # joint
-            "jntEnd", # endJoint
+            "bindJnt", # bindJnt
             "loc", # locator
             "geo", # geometry
             "ctrl", # control
             "ikHandle", # ikHandle
-            "ikjnt", # ikJoint
-            "fkJnt", # fkJoint
+            "ikJnt", # ikJnt
+            "fkJnt", # fkJnt
             "crv", # curve
             ]
 

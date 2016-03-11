@@ -32,7 +32,7 @@ class JointRenamer(object):
         """
         pass
 
-    def rename(self, asset, side, part):
+    def rename(self, asset, side, part, suffix):
         """
         Renames joint hierarchy.
         """
@@ -45,7 +45,7 @@ class JointRenamer(object):
 
         # rename
         for joint in joint_chain:
-            new_name = NameUtils.get_unique_name(asset, side, part, "jnt")
+            new_name = NameUtils.get_unique_name(asset, side, part, suffix)
             if joint == joint_chain[-1]:
                 cmds.rename(joint, new_name + "End")
                 continue
