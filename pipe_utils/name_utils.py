@@ -39,7 +39,7 @@ class NameUtils(object):
 
     @classmethod
     def get_unique_name(self, asset = "asset", side = "c",  part = "part",
-                        suffix = "loc", security = 50):
+                        suffix = "loc"):
         """
         Builds unique name based off the following parameters.
 
@@ -59,7 +59,7 @@ class NameUtils(object):
         root_name = '{0}_{1}_{2}0{3}_{4}'
         name = root_name.format(asset, side, part, str(1), suffix)
 
-        count = 1
+        # check settings
         if not side in settings.sides:
             OpenMaya.MGlobal.displayError("Side is not valid")
             return
@@ -67,11 +67,9 @@ class NameUtils(object):
             OpenMaya.MGlobal.displayError("Suffix is not valid")
             return
 
-        while cmds.objExists(name) == 1:
-            if count < security:
-                count += 1
-                name = root_name.format(asset, side, part, count, suffix)
-            else:
-                OpenMaya.MGlobal.displayWarning("Please increase security level")
-                break
+        count = 1
+        while cmds.objExists(name):
+            count += 1
+            name = root_name.format(asset, side, part, count, suffix)
+
         return name

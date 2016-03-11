@@ -12,7 +12,7 @@
 :use:
     from base import control
     ctrl_class = control.Control(asset, side, part, size, color)
-    ctrl_class.circle_cc()
+    ctrl_class.circle()
 
 """
 
@@ -34,7 +34,7 @@ class Control(object):
     Base control class.
     """
     def __init__(self, asset='asset', side='c', part='part',
-                 size=1, color='yellow', aim_axis='x', security=50):
+                 size=1, color='yellow', aim_axis='x'):
         """
         The constructor.
         """
@@ -42,7 +42,6 @@ class Control(object):
         self.asset = asset
         self.side = side
         self.part = part
-        self.security = security
 
         # settings
         self.color = color
@@ -53,7 +52,7 @@ class Control(object):
         self.ctrl_grp = None
         self.ctrl_name = None
 
-    def circle_ctrl(self):
+    def circle(self):
         """
         Builds a circle control.
         """
@@ -70,8 +69,7 @@ class Control(object):
         self.ctrl_name = NameUtils.get_unique_name(self.asset,
                                                    self.side,
                                                    self.part,
-                                                   "ctrl",
-                                                   self.security)
+                                                   "ctrl")
 
     def _finalize_ctrl(self):
         """

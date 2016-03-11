@@ -24,6 +24,7 @@ from PySide import QtGui, QtCore
 # external
 import settings
 from pipe_utils.name_utils import NameUtils
+from pipe_utils.ui_utils import UIUtils
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -33,7 +34,7 @@ class CurveJointGenerator(QtGui.QDialog):
     Tool for generating joints on a curve.
     """
     def __init__(self, gui=True, joints=10, del_curve=True, del_ikHandle=True,
-                 asset = "asset", side="l", part="part", security=50):
+                 asset = "asset", side="l", part="part"):
         """
         Defines the curve joint generator.
 
@@ -45,8 +46,6 @@ class CurveJointGenerator(QtGui.QDialog):
             asset: For naming convention.
             side: For naming convention. (r, l, c)
             part: For naming convention.
-            security: The max amount of joints to be used.
-
         """
 
         self.gui = gui
@@ -56,7 +55,6 @@ class CurveJointGenerator(QtGui.QDialog):
         self.asset = asset
         self.side = side
         self.part = part
-        self.security = security
 
         if self.gui:
             self._build_gui()
@@ -74,7 +72,7 @@ class CurveJointGenerator(QtGui.QDialog):
             pm.deleteUI(window_name, window=True)
 
         # create window
-        parent = self._get_maya_window()
+        parent = UIUtils.get_maya_window()
         window = QtGui.QMainWindow(parent)
         window.setObjectName(window_name)
         window.setWindowTitle("Curve Joint Generator")
@@ -133,13 +131,6 @@ class CurveJointGenerator(QtGui.QDialog):
         # show window
         window.show()
 
-    def _get_maya_window(self):
-        """
-        Grabs the Maya window.
-        """
-        pointer = mui.MQtUtil.mainWindow()
-        return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
-
     def _build(self, *args):
         """
         Builds the joints on the curve.
@@ -149,14 +140,12 @@ class CurveJointGenerator(QtGui.QDialog):
         side = self.side
         part = self.part
         joints = self.joints
-        security = self.security
 
         if self.gui:
             asset = self.asset_name.text()
             side = self.side.currentText()
             part = self.part_name.text()
             joints = self.joints_box.value()
-            security = joints + 1
         try:
             self.curve = pm.ls(sl=True)[0]
             curve_name = NameUtils.get_unique_name(asset, side, part, "crv")
@@ -173,7 +162,7 @@ class CurveJointGenerator(QtGui.QDialog):
 
         # # create the joints
         for x in xrange(int(joints) + 1):
-            name = NameUtils.get_unique_name(asset, side, part, "jnt", security)
+            name = NameUtils.get_unique_name(asset, side, part, "jnt")
             pm.joint(n=name)
 
             joint_position = (x * equal_spacing)

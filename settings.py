@@ -44,6 +44,7 @@ sides = ['c', 'l', 'r']
 suffixes = [
             "grp", # group
             "jnt", # joint
+            "jntEnd", # endJoint
             "loc", # locator
             "geo", # geometry
             "ctrl", # control
