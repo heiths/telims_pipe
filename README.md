@@ -3,7 +3,7 @@
 Download and unzip the repo.
 Place telims_pipe directory in the maya scripts folder.
 
-From there, simply import telims_repo to start using.
+Then: import telims_pipe
 
 ## To Use Autorig:
 ~~~ python
