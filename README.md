@@ -9,10 +9,18 @@ From there, simply import telims_repo to start using.
 ~~~ python
 import telims_pipe
 from pipe_ui import autorig_ui
+
 autorig = autorig_ui.AutorigUI()
 autorig.build_gui()
 ~~~
-## Example Use of Repo:
+## To Use Joint Renamer:
+~~~ python
+import telims_pipe
+from pipe_ui import joint_renamer_ui
+
+joint_renamer = joint_renamer_ui.JointRenamer()
+~~~
+## To Use Curve Joint Generator:
 ~~~ python
 import telims_pipe
 from rig_tools import curve_joint_generator
