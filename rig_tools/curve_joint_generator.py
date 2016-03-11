@@ -57,13 +57,13 @@ class CurveJointGenerator(QtGui.QDialog):
         self.part = part
 
         if self.gui:
-            self._build_gui()
+            self._build_ui()
         else:
             self._build()
 
-    def _build_gui(self, *kwargs):
+    def _build_ui(self, *kwargs):
         """
-        Build gui
+        Build UI.
         """
         window_name = "curve_joint_generator"
 
