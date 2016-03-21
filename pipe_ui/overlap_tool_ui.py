@@ -88,25 +88,7 @@ class OverlapToolUI(RMainWindow):
         window_name = "Overlap Tool"
 
         # styling
-        styling = """
-                  QMenu {
-                      text-align: left;
-                      background-color: #444444;
-                      border: 1px solid grey;
-                  }
-
-                  QMenu::item::selected {
-                      background-color: #4c7380;
-                  }
-
-                  QMenuBar::item::selected {
-                      background-color: #4c7380;
-                  }
-
-                  QComboBox::item {
-                      height: 30px;
-                  }
-                  """
+        self._get_styling()
 
         # build main window
         self.setObjectName(window_name)
@@ -127,7 +109,7 @@ class OverlapToolUI(RMainWindow):
 
         # menu bar
         self.menu = QtGui.QMenuBar(self)
-        self.menu.setStyleSheet(styling)
+        self.menu.setStyleSheet(self.styling)
         self.setMenuBar(self.menu)
 
         # file
@@ -229,7 +211,7 @@ class OverlapToolUI(RMainWindow):
         rig_box_label = QtGui.QLabel("Rigs:")
         rig_box_label.setMaximumWidth(35)
         self.rig_box = QtGui.QComboBox()
-        self.rig_box.setStyleSheet(styling)
+        self.rig_box.setStyleSheet(self.styling)
         rigs = self._find_rigs()
         select_all_button = QtGui.QPushButton("Select All")
         select_all_button.setMaximumWidth(60)
@@ -377,6 +359,29 @@ class OverlapToolUI(RMainWindow):
         self.properties_page.triggered.connect(self.overlap_obj.properties_page)
         stiffness_ramp.clicked.connect(self._stiffness_ramp)
         attraction_ramp.clicked.connect(self._attraction_ramp)
+
+    def _get_styling(self):
+        """
+        Sets the main styling.
+        """
+        self.styling = """
+              QMenu {
+                  text-align: left;
+                  background-color: #444444;
+                  border: 1px solid grey;
+              }
+
+              QMenu::item::selected {
+                  background-color: #4c7380;
+              }
+
+              QMenuBar::item::selected {
+                  background-color: #4c7380;
+              }
+
+              QComboBox::item {
+                  height: 30px;
+              }"""
 
     def _set_parent_control(self):
         """
@@ -560,9 +565,8 @@ class OverlapToolUI(RMainWindow):
         self._rig_check()
         controls = self.overlap_obj.find_meta_attribute("dynamicControl")
         for control in controls:
-            if control.startswith(self.rig_box.currentText()):
-                cmds.select(control, r=True)
-
+            if control.startswith(self.rig_box.currentText() + "_"):
+                    cmds.select(control, r=True)
 
     def _select_all_dynamic_controls(self):
         """
