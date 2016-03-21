@@ -16,12 +16,12 @@
 :use:
     from ani_tools.rmaya import overlap_tool
     tool = overlap_tool.OverlapTool()
-    tool._build("tail_11_CON", ["tail_12_CON", "tail_13_CON"], 1, (1, 50))
+    tool._build(params)
     @params:
-        rig_name: Name of the rig i.g. kongs_tail.
-        parent_control: Parent Control
-        selected_controls: The sequential order of the FK controls.
-        point_lock: "base" = 0, "both-ends" = 1
+        rig_name, string: Name of the rig i.g. kongs_tail.
+        parent_control, string: Parent Control
+        selected_controls, list: The sequential order of the FK controls.
+        point_lock, int: "base" = 0, "both-ends" = 1
         frame_range: Tuple (int(start), int(end))
 
 :see also:
@@ -29,7 +29,7 @@
 
 TODO:
     - Batch Build.
-    - Global Save and Load settings.
+    - Global Save and Load settings (presets).
 
 :NOTES:
     The unique naming in this script is a fail safe. It'll be layered with
@@ -370,12 +370,9 @@ class OverlapTool(object):
 
         # create ikSplineSolver accounting for motion path contstraints
         dynamic_ikSpline_name = self._get_unique_name("dynamicIkSpline", "DyIk")
-        self.dynamic_ikSpline = cmds.ikHandle(sol="ikSplineSolver",
-                                              ccv=False,
-                                              roc=False,
-                                              pcv=False,
-                                              snc=False,
-                                              cra=True,
+        self.dynamic_ikSpline = cmds.ikHandle(sol="ikSplineSolver", ccv=False,
+                                              roc=False, pcv=False,
+                                              snc=False, cra=True,
                                               sj=self.dynamic_joints[0],
                                               ee=self.dynamic_joints[-1],
                                               c=self.dynamic_ik_curve,
@@ -448,20 +445,11 @@ class OverlapTool(object):
         cmds.setDrivenKeyframe("{0}Shape.simulationMethod".format(hairSys),
                           "{0}.EN".format(dyCtrl))
 
-        # stiffness
-        cmds.addAttr(dyCtrl, ln="stiffness", at="float", k=1, hnv=1, hxv=1)
-        cmds.connectAttr("{0}.stiffness".format(dyCtrl),
-                         "{0}Shape.stiffness".format(hairSys), f=1)
-
-        # iterations
-        cmds.addAttr(dyCtrl, ln="iterations", at="float", k=1, hnv=1, hxv=1)
-        cmds.connectAttr("{0}.iterations".format(dyCtrl),
-                         "{0}Shape.iterations".format(hairSys), f=1)
-
         # motion drag
         cmds.addAttr(dyCtrl, ln="motionDrag", at="float", k=1, hnv=1, hxv=1)
         cmds.connectAttr("{0}.motionDrag".format(dyCtrl),
                          "{0}Shape.motionDrag".format(hairSys), f=1)
+
         # drag
         cmds.addAttr(dyCtrl, ln="drag", at="float",
                      k=1, hnv=1, hxv=1)
@@ -474,13 +462,24 @@ class OverlapTool(object):
         cmds.connectAttr("{0}.damp".format(dyCtrl),
                          "{0}Shape.damp".format(hairSys), f=1)
 
+        # iterations
+        cmds.addAttr(dyCtrl, ln="iterations", at="float", k=1, hnv=1, hxv=1)
+        cmds.connectAttr("{0}.iterations".format(dyCtrl),
+                         "{0}Shape.iterations".format(hairSys), f=1)
+
+        # stiffness
+        cmds.addAttr(dyCtrl, ln="stiffness", at="float", k=0, hnv=1, hxv=1,
+                     dv=1, min=0, max=1)
+        cmds.connectAttr("{0}.stiffness".format(dyCtrl),
+                         "{0}Shape.stiffness".format(hairSys), f=1)
+
     def _attraction_settings(self, dyCtrl, hairSys, fol):
         """
         Responsible for setting the start curve attract attraction settings.
         """
         # start curve attract
         cmds.addAttr(dyCtrl, ln="startCurveAttract", at="float",
-                     dv=1, k=1, hnv=1, hxv=1)
+                     dv=1, k=0, hnv=1, hxv=1)
         cmds.connectAttr("{0}.startCurveAttract".format(dyCtrl),
                          "{0}Shape.startCurveAttract".format(hairSys), f=1)
 
@@ -511,14 +510,24 @@ class OverlapTool(object):
         # attraction attributes
         positions = list()
         end_name = scale_attribute.split("Scale")[0].capitalize()
-        attraction_attributes = ["start", "leftSide", "mid", "rightSide"]
-        for count, attribute in enumerate(attraction_attributes):
-            position = float(count)/len(attraction_attributes)
+        if end_name == "Stiffness":
+            end_name = "Stiff"
+        elif end_name == "Attraction":
+            end_name = "Attract"
+
+        # inital values
+        for count in xrange(5):
+            position = float(count)/5
             positions.append(position)
         positions.append(1)
         values = list(reversed(positions))
-        for count, attribute in enumerate(attraction_attributes):
-            attribute = "{0}{1}".format(attribute, end_name)
+
+        # set attributes
+        for count in xrange(5):
+            if count == 0:
+                attribute = "{0}{1}".format(end_name, "Start")
+            else:
+                attribute = "{0}0{1}".format(end_name, count)
             position = positions[count]
             value = values[count]
             cmds.addAttr(dyCtrl, ln=attribute, at="float",
@@ -527,21 +536,22 @@ class OverlapTool(object):
                          "{1}_Position".format(hairSys, scale_attribute, count),
                          position)
             cmds.connectAttr("{0}.{1}".format(dyCtrl, attribute),
-                 "{0}Shape.{1}[{2}]."\
-                 "{1}_FloatValue".format(hairSys, scale_attribute,
+                             "{0}Shape.{1}[{2}]."\
+                             "{1}_FloatValue".format(hairSys, scale_attribute,
                                                      count))
             cmds.setAttr("{0}Shape.{1}[{2}]."\
                          "{1}_Interp".format(hairSys, scale_attribute, count),3)
         # last position
         last_pos = len(positions)
-        long_name = "{0}{1}".format("end", end_name)
+        long_name = "{0}{1}".format(end_name, "End")
         cmds.addAttr(dyCtrl, ln=long_name, at="float", dv=0,
                      k=1, hnv=1, hxv=1, max=1, min=0)
         cmds.setAttr("{0}Shape.{1}[{2}]."\
                      "{1}_Position".format(hairSys,scale_attribute, last_pos),1)
         cmds.connectAttr("{0}.{1}".format(dyCtrl, long_name),
-             "{0}Shape.{1}[{2}]."\
-             "{1}_FloatValue".format(hairSys, scale_attribute, last_pos))
+                         "{0}Shape.{1}[{2}]."\
+                         "{1}_FloatValue".format(hairSys, scale_attribute,
+                                                 last_pos))
         cmds.setAttr("{0}Shape.{1}[{2}]."\
                      "{1}_Interp".format(hairSys, scale_attribute, last_pos), 3)
 
@@ -555,20 +565,19 @@ class OverlapTool(object):
         cmds.setAttr("{0}.control".format(dyCtrl), l=True)
 
         # show/hide attributes
-        self._display_attributes("locatorDisplay", self.fk_group, dyCtrl)
-        self._display_attributes("dynamicDisplay", self.dynamic_control, dyCtrl)
-
+        self._display_attributes("locatorVis", self.fk_group, dyCtrl)
         # scale locators
-        cmds.addAttr(dyCtrl, ln="locatorControlScale", at="float", dv=1, k=True)
+        cmds.addAttr(dyCtrl, ln="locatorScale", at="float", dv=1, k=True)
         for control in self.fk_controls:
             for attr in LOCAL_SCALE_ATTRS:
-                cmds.connectAttr("{0}.locatorControlScale".format(dyCtrl),
+                cmds.connectAttr("{0}.locatorScale".format(dyCtrl),
                                  "{0}Shape.{1}".format(control, attr))
 
+        self._display_attributes("dynamicVis", self.dynamic_control, dyCtrl)
         # scale dynamic control
-        cmds.addAttr(dyCtrl, ln="dynamicControlScale", at="float", dv=1, k=True)
+        cmds.addAttr(dyCtrl, ln="dynamicScale", at="float", dv=1, k=True)
         for attr in SCALE_ATTRS:
-            cmds.connectAttr("{0}.dynamicControlScale".format(dyCtrl),
+            cmds.connectAttr("{0}.dynamicScale".format(dyCtrl),
                              "{0}.{1}".format(dyCtrl, attr))
 
     def _display_attributes(self, attribute, group, control):
@@ -582,6 +591,12 @@ class OverlapTool(object):
         # hide locators
         cmds.connectAttr("{0}.{1}".format(control, attribute),
                          "{0}.visibility".format(group))
+
+    def distribute(self):
+        """
+        Distribute Function
+        """
+        pass
 
     def _hide(self):
         """
@@ -700,8 +715,7 @@ class OverlapTool(object):
         cmds.select(cl=True)
         cmds.select(self.motion_parent)
         cmds.select(self.curve, add=True)
-        cmds.pathAnimation(f=True, wut="normal", su=self.start_frame,
-                           eu=self.end_frame)
+        cmds.pathAnimation(su=self.start_frame, eu=self.end_frame)
 
         # lock and hide attributes on dynamic control
         for attr in ATTRS:
