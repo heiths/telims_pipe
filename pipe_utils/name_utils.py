@@ -21,9 +21,6 @@
 # built-in
 from maya import OpenMaya, cmds
 
-# external
-import settings
-
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
 
@@ -31,15 +28,14 @@ class NameUtils(object):
     """
     Base Class for naming convetions.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         The initializer
         """
         pass
 
     @classmethod
-    def get_unique_name(self, asset = "asset", side = "c",  part = "part",
-                        suffix = "loc"):
+    def get_unique_name(self, asset="asset", side="c", part="part", suffix="loc"):
         """
         Builds unique name based off the following parameters.
 

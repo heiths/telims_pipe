@@ -20,13 +20,7 @@ from maya import cmds, mel
 # third party
 
 # external
-import settings
 from pipe_utils.name_utils import NameUtils
-
-
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------- GLOBALS --#
-
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -41,16 +35,25 @@ class RigTools(object):
         """
 
     @classmethod
-    def build_forearm_twist(self, aim_axis=None):
+    def build_forearm_twist(self, elbow_joint=None, hand_joint=None, *args):
        """
        Builds twist joints for a forearm twist.
+       @ARGS:
+           asset, side, part, suffix (see pipe_utils.name_utils.NameUtils)
+       NOTES:
+           Build with or without args.
+           args = ("fortniteSmasher", "r", "arm", "twistJnt")
+           tools.RigTools.build_forearm_twist("lowerarm_r", "hand_r", *args)
        """
-       # grab selection
-       selection = cmds.ls(sl=True)
+       # if args
+       if not args:
+           args = ("asset", "ud", "limb", "twistJnt")
 
        # grab necissary joints
-       elbow_joint = selection[0]
-       hand_joint = selection[1]
+       if not elbow_joint and hand_joint:
+           selection = cmds.ls(sl=True)
+           elbow_joint = selection[0]
+           hand_joint = selection[1]
 
        # get values
        joint_distance_value = cmds.getAttr("{0}.tx".format(hand_joint))
@@ -59,8 +62,7 @@ class RigTools(object):
        # build joints
        twist_joints = list()
        for value in split_tuple:
-           twist_joint_name = NameUtils.get_unique_name("asset", "l",
-                                                        "arm", "twistJnt")
+           twist_joint_name = NameUtils.get_unique_name(*args)
            temp_joint = cmds.duplicate(elbow_joint, rr=True)[0]
            twist_joint = cmds.rename(temp_joint, twist_joint_name)
            cmds.delete(cmds.listRelatives(twist_joint, f=True, ad=True, c=True))
@@ -73,13 +75,21 @@ class RigTools(object):
        for count, joint in enumerate(twist_joints):
            if count > 1:
                break
-           contraint = cmds.orientConstraint(elbow_joint, twist_joints[-1], twist_joints[count])[0]
+           contraint = cmds.orientConstraint(elbow_joint, twist_joints[-1],
+                                             twist_joints[count])[0]
            if count == 0:
                cmds.setAttr("{0}.{1}W0".format(contraint, elbow_joint), 2)
            elif count == 1:
                cmds.setAttr("{0}.{1}W1".format(contraint, twist_joints[-1]), 2)
 
-       # TODO: apply aim contraint
+       # TODO: apply aim contraint using aim axis
+
+    @classmethod
+    def build_stretchy_limb(self):
+        """
+        Builds a stretchy rig for an IK/FK/Bind joint limb setup.
+        """
+        pass
 
     @classmethod
     def hide_show_joints(self):
@@ -94,7 +104,7 @@ class RigTools(object):
         try:
             joints = pm.modelEditor(active_view, q=True, joints=True)
         except RuntimeError:
-            cmds.warning("Please make sure you're in an active view port")
+            cmds.warning("Please make sure you're in an active view port.")
             return
 
         # set display mode
