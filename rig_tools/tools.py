@@ -14,10 +14,10 @@
 #------------------------------------------------------------------- IMPORTS --#
 
 # built-in
-import pymel.core as pm
-from maya import cmds, mel
 
 # third party
+import pymel.core as pm
+from maya import cmds, mel
 
 # external
 from pipe_utils.name_utils import NameUtils
