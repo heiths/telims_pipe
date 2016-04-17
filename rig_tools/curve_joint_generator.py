@@ -20,6 +20,7 @@ import maya.OpenMayaUI as mui
 
 # 3rd party
 from PySide import QtGui, QtCore
+from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # external
 import settings
@@ -29,12 +30,13 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class CurveJointGenerator(QtGui.QDialog):
+class CurveJointGenerator(MayaQWidgetBaseMixin, QtGui.QWidget):
     """
     Tool for generating joints on a curve.
     """
-    def __init__(self, gui=True, joints=10, del_curve=True, del_ikHandle=True,
-                 asset = "asset", side="l", part="part", suffix="bindJnt"):
+    def __init__(self, parent=None, gui=True, joints=10, del_curve=True,
+                 del_ikHandle=True, asset = "asset", side="l", part="part",
+                 suffix="bindJnt", *args, **kwargs):
         """
         Defines the curve joint generator.
 
@@ -47,6 +49,9 @@ class CurveJointGenerator(QtGui.QDialog):
             side: For naming convention. (r, l, c)
             part: For naming convention.
         """
+
+        # super
+        super(CurveJointGenerator, self).__init__(parent=parent, *args, **kwargs)
 
         self.gui = gui
         self.joints = joints

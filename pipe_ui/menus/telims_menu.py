@@ -41,8 +41,8 @@ def autorig(*args):
     """
     Autorig V1
     """
-    autorig = autorig_ui.AutorigUI()
-    autorig.build_gui()
+    initialize = autorig_ui.AutorigUI()
+    tool = initialize.build_gui()
 
 def joint_renamer(*args):
     """

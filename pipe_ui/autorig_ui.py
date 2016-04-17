@@ -37,14 +37,17 @@ MODULES = list()
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class AutorigUI(object):
+class AutorigUI(MayaQWidgetDockableMixin, QtGui.QWidget):
     """
     Base class for the Autorig UI.
     """
-    def __init__(self):
+    def __init__(self, parent=None, *args, **kwargs):
         """
         The initializer.
         """
+        # super
+        super(AutorigUI, self).__init__(parent=parent, *args, **kwargs)
+
         self.image_path = settings.IMAGES
         self.module_blocks = dict()
         self.build_session = build_session.BuildSession()
@@ -153,15 +156,18 @@ class AutorigUI(object):
 
     def _add_module(self, *args):
         """
+        Adds module to layout.
         """
         pass
 
     def _build_guides(self, *args):
         """
+        Sets up guides.
         """
         pass
 
     def _build_rig(self, *args):
         """
+        Builds rig.
         """
         pass

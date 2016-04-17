@@ -31,6 +31,7 @@ class UIUtils(object):
         """
         The constructor.
         """
+        pass
 
     @classmethod
     def get_maya_window(self):

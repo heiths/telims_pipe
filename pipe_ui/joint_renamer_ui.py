@@ -20,6 +20,7 @@ import maya.OpenMayaUI as mui
 
 # 3rd party
 from PySide import QtGui, QtCore
+from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # external
 import settings
@@ -29,11 +30,11 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class JointRenamer(QtGui.QDialog):
+class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
     """
     Tool for renaming joints.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, parent=None, *args, **kwargs):
         """
         Defines the joint renamer tool.
 
@@ -42,9 +43,9 @@ class JointRenamer(QtGui.QDialog):
             side: For naming convention. (r, l, c)
             part: For naming convention.
         """
-        # grab api class
+        # super and api class
+        super(JointRenamer, self).__init__(parent=parent, *args, **kwargs)
         self.renamer_obj = joint_renamer.JointRenamer()
-
 
         self.asset = None
         self.side = None
@@ -52,7 +53,6 @@ class JointRenamer(QtGui.QDialog):
         self.suffix = None
 
         self.build_ui()
-
 
     def build_ui(self, *kwargs):
         """
@@ -67,17 +67,16 @@ class JointRenamer(QtGui.QDialog):
         # create window
         parent = UIUtils.get_maya_window()
         window = QtGui.QMainWindow(parent)
+        self.main_widget = QtGui.QWidget()
+        window.setCentralWidget(self.main_widget)
         window.setMinimumSize(350, 80)
         window.setMaximumSize(350, 80)
         window.setObjectName(window_name)
+        window.setWindowFlags(QtCore.Qt.Window)
         window.setWindowTitle("Joint Renamer")
 
-        # central widget
-        widget = QtGui.QWidget()
-        window.setCentralWidget(widget)
-
         # main layout
-        layout = QtGui.QVBoxLayout(widget)
+        layout = QtGui.QVBoxLayout(self.main_widget)
 
         # naming convention
         name_layout = QtGui.QHBoxLayout()
