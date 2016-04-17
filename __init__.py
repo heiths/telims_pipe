@@ -23,6 +23,9 @@ the path to rigging_tools inside the sys.path list.
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- IMPORTS --#
 
+# third-party
+from maya import cmds
+
 # internal
 import sys
 import settings
@@ -32,6 +35,8 @@ import settings
 
 # add telims_pipe to the PYTHONPATH variable for this session
 sys.path.append(settings.root_path)
+for directory in settings.directories:
+    sys.path.append(directory)
 
 # reset all modules
 if globals().has_key('init_modules'):
@@ -39,4 +44,3 @@ if globals().has_key('init_modules'):
         del(sys.modules[m])
 else:
     init_modules = sys.modules.keys()
-

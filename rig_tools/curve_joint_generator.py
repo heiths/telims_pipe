@@ -177,7 +177,7 @@ class CurveJointGenerator(QtGui.QDialog):
 
             joint_position = (x * equal_spacing)
             pm.move(0, joint_position, 0)
-        
+
         # rename last joint
         last_joint = curve_joints[-1]
         pm.rename(last_joint, last_joint + "End")
