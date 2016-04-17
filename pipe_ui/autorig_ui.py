@@ -17,17 +17,17 @@
 import os
 import imp
 import shiboken
-import pymel.core as pm
-import maya.OpenMayaUI as mui
-from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 # third party
+import pymel.core as pm
+import maya.OpenMayaUI as mui
 from PySide import QtGui, QtCore
+from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
 # external
 import settings
-from core import build_session
 from modules import build_modules
+from pipe_core import build_session
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- GLOBALS --#
