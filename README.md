@@ -9,6 +9,8 @@ Two new menus will appear (TELIMS, Comet).
 
 You won't need to do this step anymore.
 
+The following guides are for use inside the repo. If you just want to use the tools, simply use the 'TELIMS' menu.
+
 ## To Use Autorig:
 ~~~ python
 import telims_pipe
