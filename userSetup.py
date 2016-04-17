@@ -118,8 +118,10 @@ def setup_menus():
 
     # menus
     menu = telims_menu.telims_menu()
-    comet_menu = 'source "' + settings.COMET_TOOLS + 'cometMenu.mel"'
-    mel.eval(comet_menu)
+
+    # add comet to MAYA_SCRIPT_PATH
+    os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.COMET_TOOLS)
+    mel.eval("source cometMenu.mel;")
 
 # script job
 scriptJobNum = cmds.scriptJob(event=["NewSceneOpened", telims_pipe_setup])
