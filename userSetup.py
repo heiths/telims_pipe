@@ -62,10 +62,9 @@ def telims_setup_ui():
 
 def browse(*args):
     """
-    Browse for telims_pipe dir.
+    Browse for telims_pipe directory.
     """
     telims_pipe_dir = cmds.fileDialog2(dialogStyle=2, fileMode=3)[0]
-    print telims_pipe_dir
 
     #confirm that this is in fact the telims_pipe directory
     if os.path.split(telims_pipe_dir)[-1] != "telims_pipe":

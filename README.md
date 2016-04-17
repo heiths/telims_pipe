@@ -2,8 +2,14 @@
 
 Download and unzip the repo.
 Place telims_pipe directory in the maya scripts folder.
+Place userSetup.py in the scripts folder.
 
-Then: import telims_pipe
+On first launch of Maya a dialog will pop-up, click browse. Search for telims_pipe, click save.
+Two new menus will appear (TELIMS, Comet).
+
+You won't need to do this step anymore.
+
+The following guides are for use inside the repo. If you just want to use the tools, simply use the 'TELIMS' menu.
 
 ## To Use Autorig:
 ~~~ python
