@@ -39,9 +39,9 @@ TODO:
 
 # built-in
 import os
-from maya import cmds, mel
 
 # third party
+from maya import cmds, mel
 from PyQt4 import QtGui, QtCore
 
 # internal
