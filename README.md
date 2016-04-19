@@ -31,7 +31,8 @@ import telims_pipe
 from rig_tools import curve_joint_generator
 
 gui = curve_joint_generator.CurveJointGenerator()
-no_gui = curve_joint_generator.CurveJointGenerator(False, 20, False, True, "testing", "r", "arm")
+args = (False, 20, False, True, "testing", "r", "arm")
+no_gui = curve_joint_generator.CurveJointGenerator(*args)
 ~~~
 ### reloading
 ~~~ python
