@@ -28,9 +28,6 @@ class UIUtils(object):
     Base class for UI constructors.
     """
     def __init__(self):
-        """
-        The constructor.
-        """
         pass
 
     @classmethod
