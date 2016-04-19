@@ -69,14 +69,17 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         window = QtGui.QMainWindow(parent)
         self.main_widget = QtGui.QWidget()
         window.setCentralWidget(self.main_widget)
-        window.setMinimumSize(350, 80)
-        window.setMaximumSize(350, 80)
+        window.setMinimumSize(350, 200)
+        window.setMaximumWidth(200)
         window.setObjectName(window_name)
         window.setWindowFlags(QtCore.Qt.Window)
         window.setWindowTitle("Joint Renamer")
 
         # main layout
         layout = QtGui.QVBoxLayout(self.main_widget)
+
+        # basic name convention label
+        UIUtils.qt_divider_label(layout, "Naming Convention")
 
         # naming convention
         name_layout = QtGui.QHBoxLayout()
@@ -97,6 +100,36 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         name_layout.addWidget(self.part_name)
         name_layout.addWidget(self.suffix)
 
+        # settings label
+        UIUtils.qt_divider_label(layout, "settings")
+
+        # settings
+        settings_layout = QtGui.QHBoxLayout()
+        layout.addLayout(settings_layout)
+
+        # options
+        options_layout = QtGui.QVBoxLayout()
+        options_layout.setAlignment(QtCore.Qt.AlignTop)
+        settings_layout.addLayout(options_layout)
+
+        self.selected_joints = QtGui.QCheckBox("Selected Joints")
+        self.end_joint = QtGui.QCheckBox("End Joint")
+        options_layout.addWidget(self.selected_joints)
+        options_layout.addWidget(self.end_joint)
+
+        # joint list
+        joint_list_layout = QtGui.QVBoxLayout()
+        settings_layout.addLayout(joint_list_layout)
+
+        self.joint_list = QtGui.QListWidget()
+        multiple_selection = QtGui.QAbstractItemView.ExtendedSelection
+        self.joint_list.setSelectionMode(multiple_selection)
+        self.joint_list.setMaximumWidth(170)
+        joint_list_layout.addWidget(self.joint_list)
+
+        # populate
+        self._refresh_joint_list()
+
         # build layout
         build_layout = QtGui.QHBoxLayout()
         layout.addLayout(build_layout)
@@ -105,8 +138,9 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         build_button.setDefault(True)
         build_layout.addWidget(build_button)
 
-        # build
+        # signals
         build_button.clicked.connect(self._rename)
+        self.joint_list.itemClicked.connect(self._select_joints)
 
         # show window
         window.show()
@@ -120,7 +154,35 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         side = self.side.currentText()
         part = self.part_name.text()
         suffix = self.suffix.currentText()
+        selected_joints = self.selected_joints.isChecked()
+        end_joint = self.end_joint.isChecked()
 
         # build
-        self.renamer_obj.rename(asset, side, part, suffix)
+        self.renamer_obj.rename(asset, side, part, suffix,
+                                selected_joints, end_joint)
+        self._refresh_joint_list()
 
+    def _select_joints(self, *args):
+        """
+        Selects joints based on selection from joint_list.
+        """
+        selected_joints = list()
+        joint_list = self.joint_list.selectedItems()
+        selection = cmds.ls(sl=True)
+
+        # select items
+        for joint in joint_list:
+            cmds.select(joint.text(), add=True)
+            selected_joints.append(joint.text())
+
+        # deselect items not in the active list
+        for joint in selection:
+            if joint not in selected_joints:
+                cmds.select(joint, d=True)
+
+    def _refresh_joint_list(self):
+        """
+        Refreshes the joint_list widget.
+        """
+        joints = cmds.ls(type="joint")
+        UIUtils.qt_list_widget_add_items(self.joint_list, joints, True)
