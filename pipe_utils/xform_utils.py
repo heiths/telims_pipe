@@ -8,17 +8,12 @@
 
 :description:
     Base module for zeroing out objects.
-
-:use:
-
-long description
-
 """
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- IMPORTS --#
 
-# built-in
+# third-party
 from maya import OpenMaya
 import pymel.core as pm
 
