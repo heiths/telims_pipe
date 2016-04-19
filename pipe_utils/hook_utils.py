@@ -39,8 +39,8 @@ class HookUtils(object):
         pass
 
     @classmethod
-    def create_hook(self, asset = "asset", side = "c",  part = "part",
-                    snap_to = None, in_out = 'in', *args):
+    def create_hook(self, asset="asset", side="c",  part="part",
+                    snap_to=None, in_out='in', *args):
         """
         Settings for generating hooks in the autorig.
 
