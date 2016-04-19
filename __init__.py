@@ -7,7 +7,7 @@
     acarlisle
 
 :description:
-    Base __init__ for rig_tools
+    Base __init__ for telims_pipe
 
 :use:
     Instead of reloading individual modules simply reload(telims_pipe)
