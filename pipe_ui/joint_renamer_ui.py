@@ -117,8 +117,6 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         settings_layout.addLayout(joint_list_layout)
 
         self.joint_list = QtGui.QListWidget()
-        multiple_selection = QtGui.QAbstractItemView.ExtendedSelection
-        self.joint_list.setSelectionMode(multiple_selection)
         self.joint_list.setMaximumWidth(170)
         joint_list_layout.addWidget(self.joint_list)
 
@@ -135,6 +133,7 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
 
         # signals
         build_button.clicked.connect(self._rename)
+        self.selected_joints.stateChanged.connect(self._selection_mode)
         self.joint_list.itemClicked.connect(self._select_joints)
 
         # show window
@@ -181,3 +180,12 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         """
         joints = cmds.ls(type="joint")
         UIUtils.qt_list_widget_add_items(self.joint_list, joints, True)
+
+    def _selection_mode(self):
+        """
+        Changes the state of selection in joint_list.
+        """
+        multiple_selection = QtGui.QAbstractItemView.ExtendedSelection
+        if not self.selected_joints.isChecked():
+            multiple_selection = QtGui.QAbstractItemView.SingleSelection
+        self.joint_list.setSelectionMode(multiple_selection)
