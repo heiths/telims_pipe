@@ -501,8 +501,6 @@ class OverlapToolUI(RMainWindow):
     def _bake(self):
         """
         Handles baking out the animation
-        TODO:
-            Baking even after you close the overlap tool (meta data node).
         """
         start = self.start_frame_box.value()
         end = self.end_frame_box.value()
