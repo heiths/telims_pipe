@@ -58,4 +58,4 @@ suffixes = [
             ]
 
 HOOK_NODE_TYPE = 'locator'
-META_NODE_TYPE = 'lightInfo'
+META_NODE_TYPE = 'network'
