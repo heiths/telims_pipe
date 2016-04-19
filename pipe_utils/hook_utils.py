@@ -37,7 +37,7 @@ class HookUtils(object):
 
     @classmethod
     def create_hook(self, asset="asset", side="c",  part="part",
-                    snap_to=None, in_out='in', *args):
+                    snap_to=None, in_out='in'):
         """
         Settings for generating hooks in the autorig.
 
@@ -47,11 +47,8 @@ class HookUtils(object):
             part: For naming convention.
             snap_to: Object to snap to.
             in_out: default value.
-
-        :args:
-            Please satisfy all arguements, args = security.
         """
-        hook_name = NameUtils.get_unique_name(asset, side, part, "loc", args)
+        hook_name = NameUtils.get_unique_name(asset, side, part, "loc")
         hook = pm.createNode(settings.HOOK_NODE_TYPE, n=hook_name)
 
         if settings.HOOK_NODE_TYPE == "locator":
