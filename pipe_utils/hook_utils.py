@@ -33,9 +33,6 @@ class HookUtils(object):
     Base class for handling hooks.
     """
     def __init__(self):
-        """
-        Initializer
-        """
         pass
 
     @classmethod
