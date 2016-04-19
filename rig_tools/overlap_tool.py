@@ -44,9 +44,9 @@ TODO:
 # built-in
 import re
 import json
-from maya import cmds, mel
 
 # third party
+from maya import cmds, mel
 from PyQt4 import QtGui, QtCore
 
 # external
