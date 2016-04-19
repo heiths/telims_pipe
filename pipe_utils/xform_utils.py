@@ -28,7 +28,7 @@ from name_utils import NameUtils
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
 
-def zero(obj, security=50):
+def zero(obj):
     """
     This will group and zero out the transforms of an object.
     """
@@ -40,8 +40,7 @@ def zero(obj, security=50):
     grp_name = NameUtils.get_unique_name(temp[0].split('0')[0],
                                           temp[1],
                                           temp[2].split('0')[0],
-                                          "grp",
-                                          security)
+                                          "grp")
     if not grp_name:
         OpenMaya.MGlobal.displayError('ERROR generating name')
         return
