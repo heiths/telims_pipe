@@ -112,12 +112,12 @@ class OverlapTool(object):
 
         # grab joints and build dynamic chain
         self._create_dynamic_control()
-        dynamic_joint_chain = self._duplicate_joints("DyJnt")
+        dynamic_joint_chain = self._build_joints("DyJnt")
         self.dynamic_joints = self._parent_joints(dynamic_joint_chain)
         self._create_curve(self.dynamic_joints)
 
         # build FK system
-        fk_joint_chain = self._duplicate_joints("DyFKJnt")
+        fk_joint_chain = self._build_joints("DyFKJnt")
         self.fk_joints = self._parent_joints(fk_joint_chain)
         self.fk_controls = self._build_fk_controls()
         self._connect_fk_controls()
@@ -610,9 +610,9 @@ class OverlapTool(object):
                 except ValueError:
                     continue
 
-    def _duplicate_joints(self, suffix):
+    def _build_joints(self, suffix):
         """
-        Duplicate joints.
+        Build joints.
         @param:
             suffix: Suffix of joint chain.
         """
@@ -626,7 +626,6 @@ class OverlapTool(object):
             joint = cmds.joint(n=joint_name, p=position, o=rotation)
             joint_chain.append(joint)
 
-        # parent joints
         return joint_chain
 
     def _parent_joints(self, joint_chain):
@@ -721,6 +720,8 @@ class OverlapTool(object):
         for attr in ATTRS:
             cmds.setAttr("{0}.{1}".format(self.dynamic_control, attr),
                          l=True, k=False, cb=False)
+
+        # create metadata
         self._create_meta_data()
 
     def _create_meta_data(self):
