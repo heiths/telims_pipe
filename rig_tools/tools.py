@@ -30,9 +30,7 @@ class RigTools(object):
     Rig Tools, for simple rig solutions.
     """
     def __init__(self, *args, **kwargs):
-        """
-        The initializer.
-        """
+        pass
 
     @classmethod
     def build_forearm_twist(self, elbow_joint=None, hand_joint=None, *args):
