@@ -29,9 +29,6 @@ class NameUtils(object):
     Base Class for naming convetions.
     """
     def __init__(self, *args, **kwargs):
-        """
-        The initializer
-        """
         pass
 
     @classmethod
