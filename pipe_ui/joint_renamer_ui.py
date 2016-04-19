@@ -37,11 +37,6 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
     def __init__(self, parent=None, *args, **kwargs):
         """
         Defines the joint renamer tool.
-
-        :parameters:
-            asset: For naming convention.
-            side: For naming convention. (r, l, c)
-            part: For naming convention.
         """
         # super and api class
         super(JointRenamer, self).__init__(parent=parent, *args, **kwargs)
