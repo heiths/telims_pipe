@@ -29,7 +29,7 @@ class BuildSession(object):
     """
     def __init__(self):
         """
-        The initializer.
+        Construct Globals.
         """
         self.modules = list()
         self.exclude_dirs = ["build_modules"]
