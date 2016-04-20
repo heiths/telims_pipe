@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -42,9 +41,7 @@ class AutorigUI(MayaQWidgetDockableMixin, QtGui.QWidget):
     Base class for the Autorig UI.
     """
     def __init__(self, parent=None, *args, **kwargs):
-        """
-        The initializer.
-        """
+
         # super
         super(AutorigUI, self).__init__(parent=parent, *args, **kwargs)
 
