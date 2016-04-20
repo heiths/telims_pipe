@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -24,7 +23,9 @@ from pipe_ui import autorig_ui, joint_renamer_ui
 #------------------------------------------------------------------- CLASSES --#
 
 def telims_menu(*args):
-
+    """
+    Builds and attaches menu to Maya.
+    """
     # main window
     gMainWindow = mel.eval('$temp1 = $gMainWindow')
 
