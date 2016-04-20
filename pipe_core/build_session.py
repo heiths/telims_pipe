@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -67,5 +66,3 @@ class BuildSession(object):
 
         # store the available modules
         self.available_modules += modules
-
-
