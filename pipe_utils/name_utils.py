@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -28,11 +27,9 @@ class NameUtils(object):
     """
     Base Class for naming convetions.
     """
-    def __init__(self, *args, **kwargs):
-        pass
 
     @classmethod
-    def get_unique_name(self, asset="asset", side="c", part="part", suffix="loc"):
+    def get_unique_name(cls, asset="asset", side="c", part="part", suffix="loc"):
         """
         Builds unique name based off the following parameters.
 
