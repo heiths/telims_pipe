@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -12,9 +11,6 @@
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- IMPORTS --#
-
-# built-in
-import shiboken
 
 # 3rd party
 from maya import cmds, mel
@@ -35,9 +31,7 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
     Tool for renaming joints.
     """
     def __init__(self, parent=None, *args, **kwargs):
-        """
-        Defines the joint renamer tool.
-        """
+
         # super and api class
         super(JointRenamer, self).__init__(parent=parent, *args, **kwargs)
         self.renamer_obj = joint_renamer.JointRenamer()
