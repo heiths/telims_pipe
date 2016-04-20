@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -27,11 +26,9 @@ class UIUtils(object):
     """
     Base class for UI constructors.
     """
-    def __init__(self):
-        pass
 
     @classmethod
-    def get_maya_window(self):
+    def get_maya_window(cls):
         """
         Grabs the Maya window.
         """
@@ -39,7 +36,7 @@ class UIUtils(object):
         return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
 
     @classmethod
-    def qt_divider_label(self, layout, label):
+    def qt_divider_label(cls, layout, label):
         """
         Creates a centered label header.
         """
@@ -62,7 +59,7 @@ class UIUtils(object):
         divider_layout.addWidget(divider_right)
 
     @classmethod
-    def qt_list_widget_add_items(self, widget, items, clear=None):
+    def qt_list_widget_add_items(cls, widget, items, clear=None):
         """
         Qt Wrapper for QListWidget for adding items.
         """
@@ -74,7 +71,7 @@ class UIUtils(object):
             widget.addItem(item)
 
     @classmethod
-    def _clear_widget(self, widget):
+    def _clear_widget(cls, widget):
         """
         Clears items in a widget.
         """
