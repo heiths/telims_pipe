@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -29,11 +28,9 @@ class RigTools(object):
     """
     Rig Tools, for simple rig solutions.
     """
-    def __init__(self, *args, **kwargs):
-        pass
-
+    
     @classmethod
-    def build_forearm_twist(self, elbow_joint=None, hand_joint=None, *args):
+    def build_forearm_twist(cls, elbow_joint=None, hand_joint=None, *args):
 
         """
         Builds twist joints for a forearm twist.
@@ -103,14 +100,14 @@ class RigTools(object):
         # perhaps the aim constraint would work better.
 
     @classmethod
-    def build_stretchy_limb(self):
+    def build_stretchy_limb(cls):
         """
         Builds a stretchy rig for an IK/FK/Bind joint limb setup.
         """
         pass
 
     @classmethod
-    def hide_show_joints(self):
+    def hide_show_joints(cls):
         """
         Hides and shows joints.
         """
@@ -130,6 +127,3 @@ class RigTools(object):
             pm.modelEditor(active_view, e=True, joints=False)
         else:
             pm.modelEditor(active_view, e=True, joints=True)
-
-
-
