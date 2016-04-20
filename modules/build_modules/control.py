@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -35,9 +34,7 @@ class Control(object):
     """
     def __init__(self, asset='asset', side='c', part='part',
                  size=1, color='yellow', aim_axis='x'):
-        """
-        The constructor.
-        """
+
         # naming convention
         self.asset = asset
         self.side = side
