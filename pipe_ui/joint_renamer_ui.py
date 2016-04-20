@@ -15,10 +15,10 @@
 
 # built-in
 import shiboken
-from maya import cmds
-import maya.OpenMayaUI as mui
 
 # 3rd party
+from maya import cmds, mel
+import maya.OpenMayaUI as mui
 from PySide import QtGui, QtCore
 from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
@@ -64,8 +64,8 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         window = QtGui.QMainWindow(parent)
         self.main_widget = QtGui.QWidget()
         window.setCentralWidget(self.main_widget)
-        window.setMinimumSize(350, 200)
-        window.setMaximumWidth(200)
+        window.setMinimumSize(350, 262)
+        window.setMaximumSize(350, 262)
         window.setObjectName(window_name)
         window.setWindowFlags(QtCore.Qt.Window)
         window.setWindowTitle("Joint Renamer")
@@ -109,8 +109,21 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
 
         self.selected_joints = QtGui.QCheckBox("Selected Joints")
         self.end_joint = QtGui.QCheckBox("End Joint")
+
         options_layout.addWidget(self.selected_joints)
         options_layout.addWidget(self.end_joint)
+
+        # tools
+        UIUtils.qt_divider_label(options_layout, "Tools")
+        tools_layout = QtGui.QVBoxLayout()
+        tools_layout.setAlignment(QtCore.Qt.AlignBottom)
+        options_layout.addLayout(tools_layout)
+
+        toggle_local_axis_button = QtGui.QPushButton("Toggle Local Axis")
+        joint_orient_tool_button = QtGui.QPushButton("Joint Orient Tool")
+
+        tools_layout.addWidget(toggle_local_axis_button)
+        tools_layout.addWidget(joint_orient_tool_button)
 
         # joint list
         joint_list_layout = QtGui.QVBoxLayout()
@@ -127,12 +140,18 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         build_layout = QtGui.QHBoxLayout()
         layout.addLayout(build_layout)
 
-        build_button = QtGui.QPushButton("Rename")
-        build_button.setDefault(True)
-        build_layout.addWidget(build_button)
+        rename_button = QtGui.QPushButton("Rename")
+        build_layout.addWidget(rename_button)
+
+        # on enter
+        rename_button.setAutoDefault(True)
+        self.part_name.returnPressed.connect(rename_button.click)
+        self.asset_name.returnPressed.connect(rename_button.click)
 
         # signals
-        build_button.clicked.connect(self._rename)
+        rename_button.clicked.connect(self._rename)
+        toggle_local_axis_button.clicked.connect(self._toggle_local_axis)
+        joint_orient_tool_button.clicked.connect(self._joint_orient_tool)
         self.selected_joints.stateChanged.connect(self._selection_mode)
         self.joint_list.itemClicked.connect(self._select_joints)
 
@@ -173,6 +192,18 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         for joint in selection:
             if joint not in selected_joints:
                 cmds.select(joint, d=True)
+
+    def _toggle_local_axis(self):
+        """
+        Toggles the local axis of selected joints.
+        """
+        cmds.toggle(la=True)
+
+    def _joint_orient_tool(self):
+        """
+        Loads Maya's joint orient tool.
+        """
+        mel.eval("OrientJointOptions;")
 
     def _refresh_joint_list(self):
         """
