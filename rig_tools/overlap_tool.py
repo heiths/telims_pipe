@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -71,7 +70,10 @@ class OverlapTool(object):
     """
     def __init__(self):
         """
-        The Initializer
+        Initialize Globals. 
+        
+        NOTE:
+            This __ini__() is for initializing and rebuilding.
         """
         self.curve = None
         self.nucleus = None
