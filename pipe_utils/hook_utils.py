@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #------------------------------------------------------------------------------#
 #-------------------------------------------------------------------- HEADER --#
 
@@ -32,11 +31,9 @@ class HookUtils(object):
     """
     Base class for handling hooks.
     """
-    def __init__(self):
-        pass
 
     @classmethod
-    def create_hook(self, asset="asset", side="c",  part="part",
+    def create_hook(cls, asset="asset", side="c",  part="part",
                     snap_to=None, in_out='in'):
         """
         Settings for generating hooks in the autorig.
