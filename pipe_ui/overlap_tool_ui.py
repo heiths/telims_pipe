@@ -59,9 +59,7 @@ class OverlapToolUI(RMainWindow):
     PREF_NAME = 'overlap_tool_ui'
 
     def __init__(self, *args, **kwargs):
-        """
-        The initializer.
-        """
+
         # grab our api class
         self.overlap_obj = overlap_tool.OverlapTool()
 
