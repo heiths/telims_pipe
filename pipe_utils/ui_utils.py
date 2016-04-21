@@ -64,7 +64,7 @@ class UIUtils(object):
         Qt Wrapper for QListWidget for adding items.
         """
         if clear:
-            self._clear_widget(widget)
+            cls._clear_widget(widget)
 
         for item_text in items:
             item = QtGui.QListWidgetItem(item_text)
