@@ -28,6 +28,7 @@ eggs/
 .eggs/
 lib/
 lib64/
+.vs/
 parts/
 sdist/
 var/
@@ -52,3 +53,4 @@ coverage.xml
 *.swp
 *.un~
 *.swo
+*.pyproj
