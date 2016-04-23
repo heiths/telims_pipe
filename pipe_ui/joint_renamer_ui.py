@@ -58,8 +58,8 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         window = QtGui.QMainWindow(parent)
         self.main_widget = QtGui.QWidget()
         window.setCentralWidget(self.main_widget)
-        window.setMinimumSize(350, 262)
-        window.setMaximumSize(350, 262)
+        window.setMinimumSize(350, 320)
+        window.setMaximumSize(350, 320)
         window.setObjectName(window_name)
         window.setWindowFlags(QtCore.Qt.Window)
         window.setWindowTitle("Joint Renamer")
@@ -102,6 +102,7 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         settings_layout.addLayout(options_layout)
 
         self.selected_joints = QtGui.QCheckBox("Selected Joints")
+        self.selected_joints.setChecked(True)
         self.end_joint = QtGui.QCheckBox("End Joint")
 
         options_layout.addWidget(self.selected_joints)
@@ -115,16 +116,32 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
 
         toggle_local_axis_button = QtGui.QPushButton("Toggle Local Axis")
         joint_orient_tool_button = QtGui.QPushButton("Joint Orient Tool")
+        freeze_transforms_button = QtGui.QPushButton("Freeze Transforms")
+
+        freeze_transforms_box_layout = QtGui.QHBoxLayout()
+        self.translation_box = QtGui.QCheckBox("T")
+        self.rotation_box = QtGui.QCheckBox("R")
+        self.scale_box = QtGui.QCheckBox("S")
+        boxes = (self.translation_box, self.rotation_box, self.scale_box)
+        for box in boxes:
+            box.setChecked(True)
+        freeze_transforms_box_layout.addWidget(self.translation_box)
+        freeze_transforms_box_layout.addWidget(self.rotation_box)
+        freeze_transforms_box_layout.addWidget(self.scale_box)
 
         tools_layout.addWidget(toggle_local_axis_button)
         tools_layout.addWidget(joint_orient_tool_button)
+        tools_layout.addWidget(freeze_transforms_button)
+        tools_layout.addLayout(freeze_transforms_box_layout)
 
         # joint list
         joint_list_layout = QtGui.QVBoxLayout()
         settings_layout.addLayout(joint_list_layout)
 
         self.joint_list = QtGui.QListWidget()
-        self.joint_list.setMaximumWidth(170)
+        multiple_selection = QtGui.QAbstractItemView.ExtendedSelection
+        self.joint_list.setSelectionMode(multiple_selection)
+        self.joint_list.setMaximumWidth(200)
         joint_list_layout.addWidget(self.joint_list)
 
         # populate
@@ -146,6 +163,7 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         rename_button.clicked.connect(self._rename)
         toggle_local_axis_button.clicked.connect(self._toggle_local_axis)
         joint_orient_tool_button.clicked.connect(self._joint_orient_tool)
+        freeze_transforms_button.clicked.connect(self._freeze_transforms)
         self.selected_joints.stateChanged.connect(self._selection_mode)
         self.joint_list.itemClicked.connect(self._select_joints)
 
@@ -198,6 +216,19 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         Loads Maya's joint orient tool.
         """
         mel.eval("OrientJointOptions;")
+
+    def _freeze_transforms(self):
+        """
+        Freezes transforms on joints.
+        """
+        t = self.translation_box.isChecked()
+        r = self.rotation_box.isChecked()
+        s = self.scale_box.isChecked()
+
+        selection = cmds.ls(sl=True, type="joint")
+        if not selection:
+            return cmds.warning("No Joints selected")
+        cmds.makeIdentity(selection, a=True, t=t, r=r, s=s)
 
     def _refresh_joint_list(self):
         """
