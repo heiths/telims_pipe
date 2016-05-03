@@ -30,7 +30,15 @@ def telims_menu(*args):
     gMainWindow = mel.eval('$temp1 = $gMainWindow')
 
     # menu
-    telims_menu = cmds.menu(parent=gMainWindow, label='TELIMS')
+    labels = list()
+    menus = cmds.window(gMainWindow, q=True, menuArray=True)
+    for menu in menus:
+        label = cmds.menu(menu, q=True, l=True)
+        labels.append(label)
+    if "TELIMS" in labels:
+        return
+    else:
+        telims_menu = cmds.menu(parent=gMainWindow, label='TELIMS')
 
     # menu items
     cmds.menuItem(parent=telims_menu, label='Autorig V1', c=autorig)
