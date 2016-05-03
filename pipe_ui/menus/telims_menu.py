@@ -37,8 +37,7 @@ def telims_menu(*args):
         labels.append(label)
     if "TELIMS" in labels:
         return
-    else:
-        telims_menu = cmds.menu(parent=gMainWindow, label='TELIMS')
+    telims_menu = cmds.menu(parent=gMainWindow, label='TELIMS')
 
     # menu items
     cmds.menuItem(parent=telims_menu, label='Autorig V1', c=autorig)
