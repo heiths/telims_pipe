@@ -46,10 +46,7 @@ import json
 
 # third party
 from maya import cmds, mel
-from PyQt4 import QtGui, QtCore
-
-# external
-from rig_tools.core import control
+from PySide import QtGui, QtCore
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- GLOBALS --#
@@ -70,8 +67,8 @@ class OverlapTool(object):
     """
     def __init__(self):
         """
-        Initialize Globals. 
-        
+        Initialize Globals.
+
         NOTE:
             This __ini__() is for initializing and rebuilding.
         """
@@ -675,10 +672,7 @@ class OverlapTool(object):
 
         self.root_group = cmds.group(n=root_group_name, empty=True)
         self.pos_group = cmds.group(n=pos_group_name, empty=True)
-        self.dynamic_control = control.createControl(shape="cube",
-                                                     color="yellow",
-                                                     scale=10,
-                                                     n=dynamic_control_name)
+        self.dynamic_control = cmds.circle(n=dynamic_control_name, r=10)[0]
 
         # root control
         target = self.controls[0]

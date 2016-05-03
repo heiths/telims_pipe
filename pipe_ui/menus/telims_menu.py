@@ -17,7 +17,7 @@ from maya import cmds, mel
 
 # external
 from rig_tools import curve_joint_generator
-from pipe_ui import autorig_ui, joint_renamer_ui
+from pipe_ui import autorig_ui, joint_renamer_ui, overlap_tool_ui
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -41,6 +41,7 @@ def telims_menu(*args):
 
     # menu items
     cmds.menuItem(parent=telims_menu, label='Autorig V1', c=autorig)
+    cmds.menuItem(parent=telims_menu, label='Overlap Tool', c=overlap_tool)
     cmds.menuItem(parent=telims_menu, label='Joint Renamer', c=joint_renamer)
     cmds.menuItem(parent=telims_menu, label='Curve Joint Generator',
                   c=joints_on_a_curve)
@@ -63,3 +64,9 @@ def joints_on_a_curve(*args):
     Tool for generating joints on a curve.
     """
     tool = curve_joint_generator.CurveJointGenerator()
+
+def overlap_tool(*args):
+    """
+    Tool for building dynamic rigs onto FK rigs.
+    """
+    tool = overlap_tool_ui.OverlapToolUI()

@@ -42,29 +42,30 @@ import os
 
 # third party
 from maya import cmds, mel
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
+from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # internal
-from ani_tools.rmaya import overlap_tool
+from rig_tools import overlap_tool
 
 # external
-from pipe_api.rmaya import rnodes
-from ui_lib.window import RMainWindow
+from pipe_utils.ui_utils import UIUtils
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class OverlapToolUI(RMainWindow):
+class OverlapToolUI(MayaQWidgetBaseMixin, QtGui.QWidget):
+    """
+    Overlap Tool for building dynamic rigs onto FK rigs.
+    """
 
-    PREF_NAME = 'overlap_tool_ui'
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, parent=None, *args, **kwargs):
 
         # grab our api class
         self.overlap_obj = overlap_tool.OverlapTool()
 
         # super class
-        RMainWindow.__init__(self, *args, **kwargs)
+        super(OverlapToolUI, self).__init__(parent=parent, *args, **kwargs)
 
         # empty data
         self.controls = None
@@ -85,30 +86,40 @@ class OverlapToolUI(RMainWindow):
         """
         window_name = "Overlap Tool"
 
+        # check if window exists
+        if cmds.window(window_name, exists=True):
+            cmds.deleteUI(window_name, window=True)
+
         # styling
         self._get_styling()
 
-        # build main window
-        self.setObjectName(window_name)
-        self.setMinimumSize(300, 420)
-        self.setMaximumSize(300, 420)
-        self.setWindowTitle("Overlap Tool")
-
-        # stay on top
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        # check if window exists
+        if cmds.window(window_name, exists=True):
+            cmds.deleteUI(window_name, window=True)
 
         # main widget
         main_widget = QtGui.QWidget()
 
+        # build main window
+        parent = UIUtils.get_maya_window()
+        window = QtGui.QMainWindow(parent)
+        window.setCentralWidget(main_widget)
+        window.setObjectName(window_name)
+        window.setMinimumSize(300, 420)
+        window.setMaximumSize(300, 420)
+        window.setWindowTitle("Overlap Tool")
+
+        # stay on top
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
         # main layout
         main_layout = QtGui.QVBoxLayout(main_widget)
         main_layout.setObjectName("main_layout")
-        self.setCentralWidget(main_widget)
 
         # menu bar
         self.menu = QtGui.QMenuBar(self)
         self.menu.setStyleSheet(self.styling)
-        self.setMenuBar(self.menu)
+        window.setMenuBar(self.menu)
 
         # file
         self.file = self.menu.addMenu("File")
@@ -156,11 +167,12 @@ class OverlapToolUI(RMainWindow):
         assets_box_label.setMaximumWidth(35)
         assets_box = QtGui.QComboBox()
         # available assets
-        for asset in rnodes.RAsset.iter_all():
-            rasset = asset.get_path().split('|')[1]
-            if ":" in rasset:
-                rasset = rasset.split(':')[0]
-            assets_box.addItem(rasset)
+        # a little bit of legacy for memory :/
+        # for asset in rnodes.RAsset.iter_all():
+            # rasset = asset.get_path().split('|')[1]
+            # if ":" in rasset:
+                # rasset = rasset.split(':')[0]
+            # assets_box.addItem(rasset)
         assets_box_layout.addWidget(assets_box_label)
         assets_box_layout.addWidget(assets_box)
 
@@ -357,6 +369,9 @@ class OverlapToolUI(RMainWindow):
         self.properties_page.triggered.connect(self.overlap_obj.properties_page)
         stiffness_ramp.clicked.connect(self._stiffness_ramp)
         attraction_ramp.clicked.connect(self._attraction_ramp)
+
+        # show window
+        window.show()
 
     def _get_styling(self):
         """
@@ -720,7 +735,7 @@ class OverlapToolUI(RMainWindow):
         widget.clear()
 
 def main():
-    OverlapToolUI.singleton().start()
+    OverlapToolUI()
 
 if __name__ == "__main__":
     main()
