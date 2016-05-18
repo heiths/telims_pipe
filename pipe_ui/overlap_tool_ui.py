@@ -403,8 +403,7 @@ class OverlapToolUI(MayaQWidgetBaseMixin, QtGui.QWidget):
         selection = cmds.ls(sl=True)
         if not selection:
             msg = "Please select a Parent Control."
-            error = QtGui.QMessageBox.information(self, self.title,
-                                               msg, self.button)
+            QtGui.QMessageBox.information(self, self.title, msg, self.button)
             return
 
         self.parent_input_box.setText(str(selection[0]))
