@@ -43,7 +43,6 @@ import os
 # third party
 from maya import cmds, mel
 from PySide import QtGui, QtCore
-from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # internal
 from rig_tools import overlap_tool
@@ -54,7 +53,7 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class OverlapToolUI(MayaQWidgetBaseMixin, QtGui.QWidget):
+class OverlapToolUI(UIUtils):
     """
     Overlap Tool for building dynamic rigs onto FK rigs.
     """
@@ -84,7 +83,9 @@ class OverlapToolUI(MayaQWidgetBaseMixin, QtGui.QWidget):
         """
         Responsible for building the layout of the UI.
         """
-        window_name = "Overlap Tool"
+        window_name = "overlap_tool"
+        window_title = "Overlap Tool"
+        widget = self.widget()
 
         # check if window exists
         if cmds.window(window_name, exists=True):
@@ -97,23 +98,16 @@ class OverlapToolUI(MayaQWidgetBaseMixin, QtGui.QWidget):
         if cmds.window(window_name, exists=True):
             cmds.deleteUI(window_name, window=True)
 
-        # main widget
-        main_widget = QtGui.QWidget()
-
         # build main window
-        parent = UIUtils.get_maya_window()
-        window = QtGui.QMainWindow(parent)
-        window.setCentralWidget(main_widget)
-        window.setObjectName(window_name)
+        window = self.window(window_name, window_title, widget)
         window.setMinimumSize(300, 420)
         window.setMaximumSize(300, 420)
-        window.setWindowTitle("Overlap Tool")
 
         # stay on top
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # main layout
-        main_layout = QtGui.QVBoxLayout(main_widget)
+        main_layout = QtGui.QVBoxLayout(widget)
         main_layout.setObjectName("main_layout")
 
         # menu bar
