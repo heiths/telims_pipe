@@ -31,10 +31,8 @@ def zero(obj):
     temp = name.split("_")
 
     # group name
-    grp_name = NameUtils.get_unique_name(temp[0].split('0')[0],
-                                          temp[1],
-                                          temp[2].split('0')[0],
-                                          "grp")
+    grp_name = NameUtils.get_unique_name(temp[0].split('0')[0], temp[1],
+                                          temp[2].split('0')[0], "grp")
     if not grp_name:
         OpenMaya.MGlobal.displayError('ERROR generating name')
         return
