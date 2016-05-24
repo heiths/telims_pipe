@@ -57,7 +57,7 @@ def _find_all_outgoing(start_nodes, dependents, max_depth, depth):
     kwargs = dict(s=True, d=False)
     outgoing = cmds.listConnections(list(start_nodes), **kwargs)
     if not outgoing:
-        return  # ah the story of my life
+        return
     non_visitied = set(cmds.ls(outgoing, l=True)).difference(dependents)
     dependents.update(non_visitied)
     if non_visitied:
