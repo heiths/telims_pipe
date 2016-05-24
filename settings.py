@@ -29,11 +29,11 @@ if separator != '/':
 
 # directories
 RIG_TOOLS = root_path + 'rig_tools/'
-PIPE_UTILS = root_path + 'pipe_utils/'
 MODULES = root_path + 'modules/'
 IMAGES = root_path + 'images/'
 PIPE_UI = root_path + 'pipe_ui/'
 PIPE_CORE = root_path + 'pipe_core/'
+PIPE_UTILS = root_path + 'pipe_utils/'
 COMET_TOOLS = root_path + "comet_tools/"
 
 # dir tuple
