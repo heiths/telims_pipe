@@ -6,7 +6,7 @@
     acarlisle
 
 :description:
-    telims_pipe settings.
+    abc_pipe settings.
 """
 
 #------------------------------------------------------------------------------#
