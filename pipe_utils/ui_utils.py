@@ -50,8 +50,7 @@ class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
         """Main Widget"""
         return QtGui.QWidget()
 
-    @classmethod
-    def qt_divider_label(cls, layout, label):
+    def qt_divider_label(self, layout, label):
         """Creates a centered label header."""
         # attach to layout
         divider_layout = QtGui.QHBoxLayout()
@@ -71,18 +70,16 @@ class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
         divider_layout.addWidget(divider_label)
         divider_layout.addWidget(divider_right)
 
-    @classmethod
-    def qt_list_widget_add_items(cls, widget, items, clear=None):
+    def qt_list_widget_add_items(self, widget, items, clear=None):
         """Qt Wrapper for QListWidget for adding items."""
         if clear:
-            cls.clear_widget(widget)
+            self.clear_widget(widget)
 
         for item_text in items:
             item = QtGui.QListWidgetItem(item_text)
             widget.addItem(item)
 
-    @classmethod
-    def clear_widget(cls, widget):
+    def clear_widget(self, widget):
         """Clears items in a widget."""
         widget.clear()
 
