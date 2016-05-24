@@ -16,7 +16,6 @@
 from maya import cmds, mel
 import maya.OpenMayaUI as mui
 from PySide import QtGui, QtCore
-from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # external
 import settings
@@ -26,7 +25,7 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
+class JointRenamer(UIUtils):
     """
     Tool for renaming joints.
     """
@@ -48,24 +47,21 @@ class JointRenamer(MayaQWidgetBaseMixin, QtGui.QWidget):
         Build gui
         """
         window_name = "joint_renamer"
+        window_title = "Joint Renamer"
+        widget = self.widget()
 
         # check if window exists
         if cmds.window(window_name, exists=True):
             cmds.deleteUI(window_name, window=True)
 
         # create window
-        parent = UIUtils.get_maya_window()
-        window = QtGui.QMainWindow(parent)
-        self.main_widget = QtGui.QWidget()
-        window.setCentralWidget(self.main_widget)
+        window = self.window(window_name, window_title, widget)
+        window.setWindowFlags(QtCore.Qt.Window)
         window.setMinimumSize(350, 320)
         window.setMaximumSize(350, 320)
-        window.setObjectName(window_name)
-        window.setWindowFlags(QtCore.Qt.Window)
-        window.setWindowTitle("Joint Renamer")
 
         # main layout
-        layout = QtGui.QVBoxLayout(self.main_widget)
+        layout = QtGui.QVBoxLayout(widget)
 
         # basic name convention label
         UIUtils.qt_divider_label(layout, "Naming Convention")

@@ -19,7 +19,6 @@ import maya.OpenMayaUI as mui
 
 # 3rd party
 from PySide import QtGui, QtCore
-from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 # external
 import settings
@@ -29,7 +28,7 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class CurveJointGenerator(MayaQWidgetBaseMixin, QtGui.QWidget):
+class CurveJointGenerator(UIUtils):
     """
     Tool for generating joints on a curve.
     """
@@ -71,20 +70,15 @@ class CurveJointGenerator(MayaQWidgetBaseMixin, QtGui.QWidget):
         Build UI.
         """
         window_name = "curve_joint_generator"
+        window_title = "Curve Joint Generator"
+        widget = self.widget()
 
         # check if window exists
         if pm.window(window_name, exists=True):
             pm.deleteUI(window_name, window=True)
 
         # create window
-        parent = UIUtils.get_maya_window()
-        window = QtGui.QMainWindow(parent)
-        window.setObjectName(window_name)
-        window.setWindowTitle("Curve Joint Generator")
-
-        # central widget
-        widget = QtGui.QWidget()
-        window.setCentralWidget(widget)
+        window = self.window(window_name, window_title, widget)
 
         # main layout
         layout = QtGui.QVBoxLayout(widget)

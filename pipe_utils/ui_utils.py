@@ -18,28 +18,41 @@ import maya.OpenMayaUI as mui
 
 # 3rd party
 from PySide import QtGui, QtCore
+from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class UIUtils(object):
-    """
-    Base class for UI constructors.
-    """
+class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
+    """Base class for UI constructors."""
 
-    @classmethod
-    def get_maya_window(cls):
-        """
-        Grabs the Maya window.
-        """
+    save_button = QtGui.QMessageBox.Yes
+
+    def window(self, wname=None, wtitle=None, cwidget=None):
+        """Defines basic window parameters."""
+        parent = self.get_maya_window()
+        window = QtGui.QMainWindow(parent)
+
+        if wname:
+            window.setObjectName(wname)
+        if wtitle:
+            window.setWindowTitle(wtitle)
+        if cwidget:
+            window.setCentralWidget(cwidget)
+        return window
+
+    def get_maya_window(self):
+        """Grabs the Maya window."""
         pointer = mui.MQtUtil.mainWindow()
         return shiboken.wrapInstance(long(pointer), QtGui.QWidget)
 
+    def widget(self):
+        """Main Widget"""
+        return QtGui.QWidget()
+
     @classmethod
     def qt_divider_label(cls, layout, label):
-        """
-        Creates a centered label header.
-        """
+        """Creates a centered label header."""
         # attach to layout
         divider_layout = QtGui.QHBoxLayout()
         layout.addLayout(divider_layout)
@@ -60,21 +73,27 @@ class UIUtils(object):
 
     @classmethod
     def qt_list_widget_add_items(cls, widget, items, clear=None):
-        """
-        Qt Wrapper for QListWidget for adding items.
-        """
+        """Qt Wrapper for QListWidget for adding items."""
         if clear:
-            cls._clear_widget(widget)
+            cls.clear_widget(widget)
 
         for item_text in items:
             item = QtGui.QListWidgetItem(item_text)
             widget.addItem(item)
 
     @classmethod
-    def _clear_widget(cls, widget):
-        """
-        Clears items in a widget.
-        """
+    def clear_widget(cls, widget):
+        """Clears items in a widget."""
         widget.clear()
+
+    def warning(self, message, button_one=None, button_two=None):
+        """Method for prompting the user with a warning."""
+        if not button_one:
+            button_one = QtGui.QMessageBox.Ok
+        if not button_two:
+            button_two = QtGui.QMessageBox.Cancel
+        args = [self, "Warning", message, button_one, button_two]
+        warning = QtGui.QMessageBox.warning(*args)
+        return warning
 
 
