@@ -6,7 +6,7 @@
     acarlisle
 
 :description:
-    telims menu.
+    abc menu.
 """
 
 #------------------------------------------------------------------------------#
@@ -22,7 +22,7 @@ from pipe_ui import autorig_ui, joint_renamer_ui, overlap_tool_ui
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-def telims_menu(*args):
+def abc_menu(*args):
     """
     Builds and attaches menu to Maya.
     """
@@ -35,15 +35,15 @@ def telims_menu(*args):
     for menu in menus:
         label = cmds.menu(menu, q=True, l=True)
         labels.append(label)
-    if "TELIMS" in labels:
+    if "ABC" in labels:
         return
-    telims_menu = cmds.menu(parent=gMainWindow, label='TELIMS')
+    abc_menu = cmds.menu(parent=gMainWindow, label='ABC')
 
     # menu items
-    cmds.menuItem(parent=telims_menu, label='Autorig V1', c=autorig)
-    cmds.menuItem(parent=telims_menu, label='Overlap Tool', c=overlap_tool)
-    cmds.menuItem(parent=telims_menu, label='Joint Renamer', c=joint_renamer)
-    cmds.menuItem(parent=telims_menu, label='Curve Joint Generator',
+    cmds.menuItem(parent=abc_menu, label='Autorig V1', c=autorig)
+    cmds.menuItem(parent=abc_menu, label='Overlap Tool', c=overlap_tool)
+    cmds.menuItem(parent=abc_menu, label='Joint Renamer', c=joint_renamer)
+    cmds.menuItem(parent=abc_menu, label='Curve Joint Generator',
                   c=joints_on_a_curve)
 
 def autorig(*args):
