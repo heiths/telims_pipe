@@ -6,7 +6,7 @@
     acarlisle
 
 :description:
-    telims_pipe setup.
+    abc_pipe setup.
 
 :NOTE:
     No internal or external imports, it'll break the userSetup.
@@ -25,15 +25,15 @@ import maya.cmds as cmds
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
 
-def telims_setup_ui():
+def abc_setup_ui():
     """
-    UI setup for telims pipe.
+    UI setup for abc pipe.
     """
-    if cmds.window("telims_setup_ui", exists=True):
-        cmds.delete("telims_setup_ui")
+    if cmds.window("abc_setup_ui", exists=True):
+        cmds.delete("abc_setup_ui")
 
     # browse window
-    window = cmds.window("telims_setup_ui", title='TELIMS Tools Install',
+    window = cmds.window("abc_setup_ui", title='ABC Tools Install',
                          w=300, h=110, titleBarMenu=False, sizeable=False)
 
     # layouts
@@ -41,7 +41,7 @@ def telims_setup_ui():
     form_layout = cmds.formLayout(w = 300, h = 110)
 
     # notice
-    text = cmds.text(label = "ERROR: Could not find TELIMS Tools directory. \n"
+    text = cmds.text(label = "ERROR: Could not find ABC Tools directory. \n"
                      "Please locate using the \'Browse\' button.", w = 300)
     # buttons
     cancel_button = cmds.button(label="Cancel", w=140, h=50, c=cancel)
@@ -61,38 +61,38 @@ def telims_setup_ui():
 
 def browse(*args):
     """
-    Browse for telims_pipe directory.
+    Browse for abc_pipe directory.
     """
-    telims_pipe_dir = cmds.fileDialog2(dialogStyle=2, fileMode=3)[0]
+    abc_pipe_dir = cmds.fileDialog2(dialogStyle=2, fileMode=3)[0]
 
     #confirm that this is in fact the telims_pipe directory
-    if os.path.split(telims_pipe_dir)[-1] != "telims_pipe":
-        msg = "Selected directory is not the telims_pipe Directory, try again."
+    if os.path.split(abc_pipe_dir)[-1] != "abc_pipe":
+        msg = "Selected directory is not the abc_pipe Directory, try again."
         return cmds.warning(msg)
 
     # build txt file containing path
-    cmds.deleteUI("telims_setup_ui")
-    path = cmds.internalVar(upd = True) + "telims_setup.txt"
+    cmds.deleteUI("abc_setup_ui")
+    path = cmds.internalVar(upd = True) + "abc_setup.txt"
 
     # write
     f = open(path, 'w')
-    f.write(telims_pipe_dir)
+    f.write(abc_pipe_dir)
     f.close()
 
     # setup menu
-    telims_pipe_setup()
+    abc_pipe_setup()
 
 def cancel(*args):
     """
-    Cancel search for telims_pipe.
+    Cancel search for abc_pipe.
     """
-    cmds.deleteUI("telims_setup_ui")
+    cmds.deleteUI("abc_setup_ui")
 
 def telims_pipe_setup():
     """
-    Adds telims_pipe to PYTHON path variable.
+    Adds abc_pipe to PYTHON path variable.
     """
-    path = cmds.internalVar(upd=True) + "telims_setup.txt"
+    path = cmds.internalVar(upd=True) + "abc_setup.txt"
     if os.path.exists(path):
         f = open(path, 'r')
         path = f.readline()
@@ -103,23 +103,23 @@ def telims_pipe_setup():
         # run setup
         setup_menus()
     else:
-        telims_setup_ui()
+        abc_setup_ui()
 
 def setup_menus():
     """
-    Sets up telims and comet menu.
+    Sets up ABC and comet menu.
     """
     # imports
-    import telims_pipe
+    import abc_pipe
     import settings
-    from pipe_ui.menus import telims_menu
+    from pipe_ui.menus import abc_menu
 
     # menus
-    menu = telims_menu.telims_menu()
+    menu = abc_menu.abc_menu()
 
     # add comet to MAYA_SCRIPT_PATH
     os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.COMET_TOOLS)
     mel.eval("source cometMenu.mel;")
 
 # script job
-scriptJobNum = cmds.scriptJob(event=["NewSceneOpened", telims_pipe_setup])
+scriptJobNum = cmds.scriptJob(event=["NewSceneOpened", abc_pipe_setup])
