@@ -3,7 +3,7 @@
 Download and unzip the repo.
 Place userSetup.py in the scripts folder.
 
-On first launch of Maya a dialog will pop-up, click browse. Search for wherever you unzipped telims_pipe, click save.
+On first launch of Maya a dialog will pop-up, click browse. Search for wherever you unzipped abc_pipe, click save.
 Two new menus will appear (ABC, Comet).
 
 You won't need to do this step anymore.
