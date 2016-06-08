@@ -25,14 +25,14 @@ from pipe_utils.ui_utils import UIUtils
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
 
-class JointRenamer(UIUtils):
+class JointRenamerUI(UIUtils):
     """
     Tool for renaming joints.
     """
     def __init__(self, parent=None, *args, **kwargs):
 
         # super and api class
-        super(JointRenamer, self).__init__(parent=parent, *args, **kwargs)
+        super(JointRenamerUI, self).__init__(parent=parent, *args, **kwargs)
         self.renamer_obj = joint_renamer.JointRenamer()
 
         self.asset = None
@@ -64,7 +64,7 @@ class JointRenamer(UIUtils):
         layout = QtGui.QVBoxLayout(widget)
 
         # basic name convention label
-        UIUtils.qt_divider_label(layout, "Naming Convention")
+        self.qt_divider_label(layout, "Naming Convention")
 
         # naming convention
         name_layout = QtGui.QHBoxLayout()
@@ -86,7 +86,7 @@ class JointRenamer(UIUtils):
         name_layout.addWidget(self.suffix)
 
         # settings label
-        UIUtils.qt_divider_label(layout, "settings")
+        self.qt_divider_label(layout, "settings")
 
         # settings
         settings_layout = QtGui.QHBoxLayout()
@@ -105,7 +105,7 @@ class JointRenamer(UIUtils):
         options_layout.addWidget(self.end_joint)
 
         # tools
-        UIUtils.qt_divider_label(options_layout, "Tools")
+        self.qt_divider_label(options_layout, "Tools")
         tools_layout = QtGui.QVBoxLayout()
         tools_layout.setAlignment(QtCore.Qt.AlignBottom)
         options_layout.addLayout(tools_layout)
@@ -231,7 +231,7 @@ class JointRenamer(UIUtils):
         Refreshes the joint_list widget.
         """
         joints = cmds.ls(type="joint")
-        UIUtils.qt_list_widget_add_items(self.joint_list, joints, True)
+        self.qt_list_widget_add_items(self.joint_list, joints, True)
 
     def _selection_mode(self):
         """

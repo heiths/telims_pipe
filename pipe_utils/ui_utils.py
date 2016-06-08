@@ -26,7 +26,9 @@ from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
 class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
     """Base class for UI constructors."""
 
+    # globals
     save_button = QtGui.QMessageBox.Yes
+    multiple_selection = QtGui.QAbstractItemView.ExtendedSelection
 
     def window(self, wname=None, wtitle=None, cwidget=None):
         """Defines basic window parameters."""
@@ -70,14 +72,28 @@ class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
         divider_layout.addWidget(divider_label)
         divider_layout.addWidget(divider_right)
 
-    def qt_list_widget_add_items(self, widget, items, clear=None):
+    def qt_list_widget_add_items(self, widget, items, clear=None, dup=None):
         """Qt Wrapper for QListWidget for adding items."""
         if clear:
             self.clear_widget(widget)
-
         for item_text in items:
             item = QtGui.QListWidgetItem(item_text)
+            if dup:
+                if widget.findItems(item.text(), QtCore.Qt.MatchExactly):
+                    continue
             widget.addItem(item)
+
+    def list_widget_find_all_items(self, widget):
+        """Finds all items in a QListWidget"""
+        all_items = list()
+        for index in xrange(widget.count()):
+            all_items.append(widget.item(index).text())
+        return all_items
+
+    def qt_list_widget_remove_items(self, widget):
+        """Qt Wrapper for QListWidget for removing items"""
+        for item in widget.selectedItems():
+            widget.takeItem(widget.row(item))
 
     def clear_widget(self, widget):
         """Clears items in a widget."""
@@ -93,4 +109,22 @@ class UIUtils(MayaQWidgetBaseMixin, QtGui.QWidget):
         warning = QtGui.QMessageBox.warning(*args)
         return warning
 
-
+    def widget_state(self, widgets, state=None, exclude=None):
+        """Enables/Disables Widgets based on their current state.
+            @PARAMS:
+                :widgets: list, widgets.
+                :state: "disable", "enable", None = toggle
+        """
+        for widget in widgets:
+            if exclude:
+                if widget in exclude:
+                    continue
+            if state == "disable":
+                widget.setEnabled(False)
+            elif state == "enable":
+                widget.setEnabled(True)
+            else: # toggle
+                if widget.isEnabled():
+                    widget.setEnabled(False)
+                elif not widget.isEnabled():
+                    widget.setEnabled(True)

@@ -57,7 +57,7 @@ def joint_renamer(*args):
     """
     Joint Renamer
     """
-    tool = joint_renamer_ui.JointRenamer()
+    tool = joint_renamer_ui.JointRenamerUI()
 
 def joints_on_a_curve(*args):
     """

@@ -62,3 +62,11 @@ def _find_all_outgoing(start_nodes, dependents, max_depth, depth):
     dependents.update(non_visitied)
     if non_visitied:
         _find_all_outgoing(non_visitied, dependents, max_depth, depth + 1)
+
+def find_top_parent(dag_object):
+    """Finds the top parent of a dag object
+        @PARAMS:
+            dag_object: string
+    """
+    dag_path = cmds.ls(dag_object, l=True)[0]
+    return dag_path.split("|")[1]
