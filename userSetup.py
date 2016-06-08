@@ -118,8 +118,8 @@ def setup_menus():
     menu = abc_menu.abc_menu()
 
     # add comet to MAYA_SCRIPT_PATH
-    os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.COMET_TOOLS)
-    mel.eval("source cometMenu.mel;")
+    # os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.COMET_TOOLS)
+    # mel.eval("source cometMenu.mel;")
 
 # script job
 scriptJobNum = cmds.scriptJob(event=["NewSceneOpened", abc_pipe_setup])
