@@ -68,5 +68,7 @@ def find_top_parent(dag_object):
         @PARAMS:
             dag_object: string
     """
+    if not cmds.objExists(dag_object):
+        return cmds.warning("Object '{0}' does not exist.".format(dag_object))
     dag_path = cmds.ls(dag_object, l=True)[0]
     return dag_path.split("|")[1]

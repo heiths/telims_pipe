@@ -37,7 +37,7 @@ def abc_menu(*args):
         labels.append(label)
     if "ABC" in labels:
         return
-    abc_menu = cmds.menu(parent=gMainWindow, label='ABC')
+    abc_menu = cmds.menu("ABC", parent=gMainWindow, label='ABC')
 
     # menu items
     cmds.menuItem(parent=abc_menu, label='Autorig V1', c=autorig)
