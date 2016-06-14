@@ -141,7 +141,7 @@ class MayaLogger(UIUtils):
         # layout
         layout = QtGui.QVBoxLayout(widget)
 
-        self.qt_divider_label(layout, "Welcome to the EPIC Logger")
+        self.qt_divider_label(layout, "Welcome to the ABC Logger")
 
         # console
         self.console = QtGui.QTextBrowser()
