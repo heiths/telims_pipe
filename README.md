@@ -9,19 +9,6 @@ Two new menus will appear (ABC, Comet).
 You won't need to do this step anymore.
 
 The following guides are for use inside the repo. If you just want to use the tools, simply use the 'ABC' menu.
-
-## To Use Maya Logger:
-~~~ python
-import abc_pipe
-from pipe_utils import maya_logger
-
-# launches terminal
-logger = maya_logger.main()
-
-warning = logger.warning("This is a warning")
-error = logger.error("This is an error")
-info = logger.info("This is some info")
-debug = logger.debug("This is a debug option")
 ~~~
 ## To Use Joint Renamer:
 ~~~ python
