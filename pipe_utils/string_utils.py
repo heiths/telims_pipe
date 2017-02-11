@@ -10,7 +10,13 @@
 """
 
 #------------------------------------------------------------------------------#
-#------------------------------------------------------------------ SETTINGS --#
+#------------------------------------------------------------------- IMPORTS --#
+
+# built-in
+import re
+
+#------------------------------------------------------------------------------#
+#----------------------------------------------------------------- FUNCTIONS --#
 
 def is_merge(s, part_one, part_two):
     """Checks if the string s can be made up with part_one and
@@ -38,4 +44,26 @@ def in_order_check(s, part):
         order.append(value)
     if order == sorted(order):
         return order
+
+def get_namespace(name):
+    """Gets the namespace from the given name.
+    :param name: String to extract the namespace from.
+    :return: The extracted namespace
+    """
+    namespace = re.match('[_0-9a-zA-Z]+(?=:)(:[_0-9a-zA-Z]+(?=:))*', name)
+    if namespace:
+        namespace = '%s:' % str(namespace.group(0))
+    else:
+        namespace = ''
+    return namespace
+
+def remove_namespace(name):
+    """Removes the namespace from the given name
+    :param name: The name with the namespace
+    :return: The name without the namesapce
+    """
+    namespace = get_namespace(name)
+    if namespace:
+        return re.sub('^{0}'.format(namespace), '', name)
+    return name
 

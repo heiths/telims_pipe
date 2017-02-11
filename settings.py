@@ -35,12 +35,13 @@ PIPE_UI = root_path + 'pipe_ui/'
 PIPE_CORE = root_path + 'pipe_core/'
 PIPE_UTILS = root_path + 'pipe_utils/'
 MEL = root_path + "mel/"
-ICON_PATH = IMAGES + "icons/"
+ICONS = IMAGES + "icons/"
 THIRD_PARTY = root_path + "third_party/"
+SHELVES = PIPE_UI + "shelves/"
 
 # dir tuple
 directories = (RIG_TOOLS, PIPE_UTILS, MODULES, IMAGES, PIPE_UI, PIPE_CORE,
-               MEL, ICON_PATH)
+               MEL, ICONS, SHELVES, THIRD_PARTY)
 
 # sides
 sides = ['c', 'l', 'r']

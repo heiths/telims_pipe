@@ -18,7 +18,7 @@ import pymel.core as pm
 import maya.OpenMayaUI as mui
 
 # 3rd party
-from PySide import QtGui, QtCore
+from Qt import QtGui, QtCore, QtWidgets
 
 # external
 import settings

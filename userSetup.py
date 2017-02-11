@@ -116,8 +116,7 @@ def setup_menus():
     # setup environment
     sys.path.append(settings.THIRD_PARTY)
     os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.MEL)
-    os.environ["XBMLANGPATH"] += str(";" + settings.ICON_PATH)
-
+    os.environ["XBMLANGPATH"] += str(";" + settings.ICONS)
 
     # abc menu
     from pipe_ui.menus import abc_menu
