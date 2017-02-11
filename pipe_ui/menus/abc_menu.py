@@ -41,18 +41,11 @@ def abc_menu(*args):
     abc_menu = cmds.menu("ABC", parent=gMainWindow, label='ABC')
 
     # menu items
-    # cmds.menuItem(parent=abc_menu, label='Autorig V1', c=autorig)
+    cmds.menuItem(parent=abc_menu, label='Autorig V1', c=autorig)
     cmds.menuItem(parent=abc_menu, label='Overlap Tool', c=overlap_tool)
     cmds.menuItem(parent=abc_menu, label='Joint Renamer', c=joint_renamer)
     cmds.menuItem(parent=abc_menu, label='Curve Joint Generator',
                   c=joints_on_a_curve)
-    cmds.menuItem(parent=abc_menu, label='qrTools', c=qr_tools)
-
-def qr_tools(*args):
-    """
-    qrTools
-    """
-    mel.eval("source qrTools.mel")
 
 def autorig(*args):
     """

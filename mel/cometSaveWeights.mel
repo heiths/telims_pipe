@@ -35,9 +35,6 @@
 
 /*
  * Includes
-             // What joints are being used?
-        //$cmd = ("skinPercent -q -t "+$skinCl+" "+$comp);
-            $cmd =("skinCluster -q -inf "+$comp)
  */
 eval("source \"libSkin.mel\"; ") ;
 eval("source \"libString.mel\"; ") ;
@@ -59,15 +56,11 @@ global string $cSaveW_date = "Nov 3, 2004" ;
 /*
  * cometSaveWeights() - Main Entry
  */
- 
- 
 global proc cometSaveWeights()
 {
     global string $cSaveW_version ;
     global string $cSaveW_date ;
-	
-	source libString.mel;
-	
+
     if (`window -q -ex cometSaveWeightsWin`)
     	{
     	showWindow cometSaveWeightsWin ;
@@ -463,8 +456,7 @@ global proc cSaveW_save(string $skinCl, string $file, string $comps[],
 		clear $wts ;
 	
 			// What joints are being used?
-		//$cmd = ("skinPercent -q -t "+$skinCl+" "+$comp);
-		$cmd =("skinCluster -q -inf "+$comp);
+		$cmd = ("skinPercent -q -t "+$skinCl+" "+$comp); 
 		$jnts = eval($cmd);
 			// And what are their skinPercent weights?
 		$cmd = ("skinPercent -q -v "+$skinCl+" "+$comp); 
@@ -561,12 +553,12 @@ global proc cSaveW_updateUI()
     int $mode = `radioButtonGrp -q -sl rbgLoadBy` ;
     if ($mode == 1)	// Order
     	{
-    	floatField -e -en false tfTol ;
+    	textField -e -en false tfTol ;
     	radioButtonGrp -e -en false rbgMirror ;
     	}
     else
     	{
-    	floatField -e -en true tfTol ;
+    	textField -e -en true tfTol ;
     	radioButtonGrp -e -en true rbgMirror ;
     	}
 
@@ -615,15 +607,13 @@ global proc cSaveW_load(string $skinCl, string $file, string $comps[],
     string $ppJnts[] ;	// string of joints for each point
     string $ppWts[] ;	// Weight string of float weights for each point
     float $ppXPos[] ;	// X Pos for each loaded pt
-    float $ppYPos[] ;	// Y Pos for each loaded pt
-    float $ppZPos[] ;	// Z Pos for each loaded pt
+    float $ppYPos[] ;	// X Pos for each loaded pt
+    float $ppZPos[] ;	// X Pos for each loaded pt
 
-	string $jnts[] ;
-   	float $wts[] ;
 
     if (size($comps) <= 0)
     	{
-    	error ("cometSaveWeights: You must select one or more points/vertices to load points for.") ;
+    	error -sl 0 ("cometSaveWeights: You must select one or more points/vertices to load points for.") ;
     	}
 
     if ($file == "")
@@ -702,21 +692,21 @@ global proc cSaveW_load(string $skinCl, string $file, string $comps[],
 	    	    $posL[2] *= -1.0 ;
 	    		    	
 	    	string $tvStr = `fgetline $fileId` ;	// jnt wt jnt wt jnt wt ...
-			$tvStr = cSaveW_stripCR($tvStr) ;
-	    	tokenize($tvStr,  " ", $parts) ;
-			clear $jnts;
-			clear $wts;
+	    	$tvStr = cSaveW_stripCR($tvStr) ;
+	    	tokenize($tvStr, $parts) ;
+	    	string $jnts[] ;
+	    	float $wts[] ;
+	    	clear $jnts ;
+	    	clear $wts ;
 	    	int $j;
-			
-	    	for ($j=0; $j < `size $parts`; $j += 2)
+	    	for ($j=0; $j < size($parts); $j += 2)
 	    	    {
-	    	    if ($search != ""){
-					$parts[$j] = substitute($search,$parts[$j],$replace);}
+	    	    if ($search != "")
+			$parts[$j] = strSearchReplace($parts[$j], $search, $replace) ;
 
-	    	    $jnts[`size $jnts`] = $parts[$j];
-				$wts[`size $wts`] = $parts[$j+1];
-	    	    
-				}
+	    	    $jnts[size($jnts)] = $parts[$j] ;
+	    	    $wts[size($wts)] = $parts[$j+1] ;
+	    	    }
 
 		// Now actually do something with all the data we read.
 		// We know the points World and Local space with mirroring done, 
@@ -1148,4 +1138,5 @@ global proc int cSaveW_pruneAndNormalize(float $wts[], int $prunePlaces)
 }
 
 // --------------------------------------------------------------------------
+
 
