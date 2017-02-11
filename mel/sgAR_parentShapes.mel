@@ -1,0 +1,18 @@
+global proc sgAR_parentShapes (string $sel[]){
+
+string $sel[] = `ls -sl`;
+string $xform = $sel[1];
+string $shape = $sel[0];
+string $shapes[] = `listRelatives -pa -shapes $shape`;
+
+parent $shape $xform;
+makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 $shape;
+parent -r -s $shapes $xform;
+
+delete $shape;
+
+if(`objectType $xform` == "joint"){
+	setAttr ($xform + ".drawStyle") 2;
+	}
+
+}

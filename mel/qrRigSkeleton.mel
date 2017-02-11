@@ -1,0 +1,72 @@
+global proc qrRigSkeleton (){
+
+string $skinJoints[];
+string $rigJoints[];
+string $temp[];
+string $parent;
+string $root;
+string $rigRoot;
+
+$temp = `ls -sl`;
+	$root = $temp[0];
+	$rigRoot = `substitute "bone_" $root ""`;
+
+if(`objExists rigSkeleton_GRP` == 0){
+	group -em -n "rigSkeleton_GRP";
+	}
+
+if(`objExists skinSkeleton_GRP` == 0){
+	group -em -n "skinSkeleton_GRP";
+	}
+
+//	Generates the rig joints.  Constrains each skin joint to it's rig joint and connects their scales.
+
+string $skinJoints[] = `listRelatives -ad -type joint $root`;
+	stringArrayInsertAtIndex(0,$skinJoints,$root);
+
+	for ($i = 0; $i < `size $skinJoints`; $i++){
+		$temp[0] = `substitute "bone_" $skinJoints[$i] ""`;
+		$rigJoints[$i] = $temp[0];
+		
+		if(!`objExists $rigJoints[$i]`){
+			duplicate -po -rr -n $rigJoints[$i] $skinJoints[$i];
+				if($skinJoints[$i] != $root){
+					parent -world $rigJoints[$i];
+					}
+				parentConstraint  $rigJoints[$i] $skinJoints[$i];
+				connectAttr -f ($rigJoints[$i] + ".scale") ($skinJoints[$i] + ".scale");
+			}	
+		}
+	
+//	Parents the rig joints into a new skeleton
+
+print $skinJoints;
+print"\n\n\n";
+print $rigJoints;
+
+$skinJoints = stringArrayRemove({$root},$skinJoints);
+$rigJoints = stringArrayRemove({$rigRoot},$rigJoints);
+
+	for ($i = 0; $i < `size $skinJoints`; $i++){
+		$temp = `listRelatives -parent $skinJoints[$i]`;
+		$parent = $temp[0];
+			if(!`isConnected ($parent + ".scale") ($skinJoints[0] + ".inverseScale")`){
+				connectAttr -f ($parent + ".scale") ($skinJoints[0] + ".inverseScale");
+				}
+		$parent = `substitute "bone_" $parent ""`;
+		parent $rigJoints[$i] $parent;
+			if(!`isConnected ($parent + ".scale") ($rigJoints[0] + ".inverseScale")`){
+				connectAttr -f ($parent + ".scale") ($rigJoints[0] + ".inverseScale");
+				}
+		}
+
+//	Parents the skeletons under the appropriate group.
+		
+parent $rigRoot rigSkeleton_GRP;
+parent $root skinSkeleton_GRP;
+setAttr skinSkeleton_GRP.v 0;
+
+
+}
+
+qrRigSkeleton;

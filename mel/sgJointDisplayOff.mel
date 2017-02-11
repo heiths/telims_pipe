@@ -1,0 +1,19 @@
+global proc sgJointDisplayOff (){
+
+string $joints[] = `ls -sl -type "joint"`;
+string $joint;
+int $drawStyle = 0;
+
+for($joint in $joints){
+	$drawStyle = `getAttr($joint + ".drawStyle")`;
+	if($drawStyle == 0){
+		setAttr ($joint + ".drawStyle") 2;
+		}
+
+	if($drawStyle == 2){
+		setAttr ($joint + ".drawStyle") 0;
+		}
+
+	}
+
+}

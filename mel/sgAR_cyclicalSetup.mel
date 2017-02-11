@@ -1,0 +1,39 @@
+global proc sgAR_cyclicalSetup (){
+
+string $temp[];
+
+string $control = `group -em -n "cyclical_CTRL"`;
+	addAttr -at "long" -ln "int" $control;
+		setAttr -lock false -cb true ($control + ".int");
+	addAttr -at "float" -ln "driver" $control;
+		setAttr -lock false -cb true ($control + ".driver");
+		setAttr -keyable true ($control + ".driver");
+	addAttr -at "float" -ln "range" $control;
+		setAttr -lock false -cb true ($control + ".range");
+	addAttr -at "float" -ln "result" $control;
+		setAttr -lock false -cb true ($control + ".result");
+		setAttr ($control + ".range") 1;
+string $multA = `shadingNode -asUtility multiplyDivide -n "cyclical_MULT_A"`;
+	setAttr ($multA + ".operation") 2;
+	setAttr -lock true -cb false ($multA + ".operation");
+string $multB = `shadingNode -asUtility multiplyDivide -n "cyclical_MULT_B"`;
+string $pmaA = `shadingNode -asUtility plusMinusAverage -n "cyclical_PMA_A"`;
+	setAttr ($pmaA + ".input2D[1].input2Dx") -0.5; 
+string $pmaB = `shadingNode -asUtility plusMinusAverage -n "cyclical_PMA_B"`;
+	setAttr ($pmaB + ".operation") 2;
+	setAttr -lock true -cb false ($pmaB + ".operation");
+
+connectAttr -f ($control + ".driver") ($multA + ".input1X");
+connectAttr -f ($control + ".range") ($multA + ".input2X");
+
+connectAttr -f ($multA + ".outputX") ($pmaA + ".input2D[0].input2Dx");
+connectAttr -f ($pmaA + ".output2Dx") ($control + ".int");
+
+connectAttr -f ($multA + ".outputX") ($pmaB + ".input2D[0].input2Dx");
+connectAttr -f ($control + ".int") ($pmaB + ".input2D[1].input2Dx");
+
+connectAttr -f ($pmaB + ".output2Dx") ($multB + ".input1X");
+connectAttr -f ($control + ".range") ($multB + ".input2X");
+connectAttr -f ($multB + ".outputX") ($control + ".result");
+
+}

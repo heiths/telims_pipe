@@ -1,0 +1,23 @@
+global proc string sgAR_zero (string $obj){
+
+string $obj;
+string $zero;
+$zero = `sgAR_null($obj)`;
+$zero = `rename $zero ($obj + "_ZERO")`;
+parent $obj $zero;
+
+return $zero;
+
+}
+
+
+global proc sgAR_zeroSel (){
+
+string $sel[] = `ls -sl`;
+string $obj;
+
+for($obj in $sel){
+	sgAR_zero($obj);
+	}
+
+}

@@ -34,11 +34,13 @@ IMAGES = root_path + 'images/'
 PIPE_UI = root_path + 'pipe_ui/'
 PIPE_CORE = root_path + 'pipe_core/'
 PIPE_UTILS = root_path + 'pipe_utils/'
-COMET_TOOLS = root_path + "comet_tools/"
+MEL = root_path + "mel/"
+ICON_PATH = IMAGES + "icons/"
+THIRD_PARTY = root_path + "third_party/"
 
 # dir tuple
 directories = (RIG_TOOLS, PIPE_UTILS, MODULES, IMAGES, PIPE_UI, PIPE_CORE,
-               COMET_TOOLS,)
+               MEL, ICON_PATH)
 
 # sides
 sides = ['c', 'l', 'r']

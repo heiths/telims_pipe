@@ -1,0 +1,57 @@
+global proc sgEdgesToJoint (){
+
+string $temp[];
+
+string $type;
+string $mesh;
+string $sel[] = `ls -sl`;
+	tokenize $sel[0] "." $temp;
+	$mesh = $temp[0];
+	$type = $temp[1];
+		tokenize $type "[" $temp;
+		$type = $temp[0];
+		if($type == "vtx"){
+			$type = "vertex";
+			}
+		if($type == "e"){
+			$type = "edge";
+			}
+		if($type == "f"){
+			$type = "face";
+			}
+ConvertSelectionToVertices;
+string $verts[] = `ls -fl -sl`;
+int $i;
+vector $pos[];
+vector $average;
+
+for($i=0;$i<`size $verts`;$i++){
+	$pos[$i] = `xform -q -ws -t $verts[$i]`;
+	$average = $average + $pos[$i];
+	}
+
+$average = $average/`size $verts`;
+
+select -clear;
+joint -position ($average.x) ($average.y) ($average.z);
+select -r $mesh;
+doMenuComponentSelection($mesh, $type);
+print $type;
+}
+
+//----------------------------------------------------
+
+global proc sgEdgesToJointWin (){
+
+if(!`window -exists EdgesToJointWin`){
+	string $win = `window -tb 0 -s 0 -wh 32 32 EdgesToJointWin`;
+	string $row = `rowColumnLayout -numberOfColumns 1`;
+	iconTextButton -i "EdgesToJoint.bmp" -c sgEdgesToJoint;
+	showWindow $win;
+	}
+	else{
+	deleteUI -window EdgesToJointWin;
+	}
+
+
+}

@@ -1,0 +1,34 @@
+global proc sgLockMesh()
+{
+
+string $pieces[];
+int $size;
+int $i;
+$pieces = `ls -sl`;
+$size = size($pieces);
+
+for($i = 0;$i < $size;$i++)
+	{
+	
+	if(`getAttr($pieces[$i] + ".overrideEnabled")` == 0)
+		{
+		
+		setAttr ($pieces[$i] + ".overrideEnabled") 1;
+		setAttr ($pieces[$i] + ".overrideDisplayType") 2;
+		
+		}
+
+	else
+		{
+		
+		setAttr ($pieces[$i] + ".overrideEnabled") 0;
+		setAttr ($pieces[$i] + ".overrideDisplayType") 2;
+
+		
+		}
+	
+	}
+
+select -cl;
+
+}

@@ -20,7 +20,7 @@ import os
 import sys
 
 # third-party
-import maya.cmds as cmds
+from maya import cmds, mel
 
 #------------------------------------------------------------------------------#
 #----------------------------------------------------------------- FUNCTIONS --#
@@ -65,7 +65,7 @@ def browse(*args):
     """
     abc_pipe_dir = cmds.fileDialog2(dialogStyle=2, fileMode=3)[0]
 
-    #confirm that this is in fact the telims_pipe directory
+    #confirm that this is in fact the abc_pipe directory
     if os.path.split(abc_pipe_dir)[-1] != "abc_pipe":
         msg = "Selected directory is not the abc_pipe Directory, try again."
         return cmds.warning(msg)
@@ -88,7 +88,7 @@ def cancel(*args):
     """
     cmds.deleteUI("abc_setup_ui")
 
-def telims_pipe_setup():
+def abc_pipe_setup():
     """
     Adds abc_pipe to PYTHON path variable.
     """
@@ -112,14 +112,18 @@ def setup_menus():
     # imports
     import abc_pipe
     import settings
-    from pipe_ui.menus import abc_menu
 
-    # menus
+    # setup environment
+    sys.path.append(settings.THIRD_PARTY)
+    os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.MEL)
+    os.environ["XBMLANGPATH"] += str(";" + settings.ICON_PATH)
+
+
+    # abc menu
+    from pipe_ui.menus import abc_menu
+    mel.eval("source cometMenu.mel;")
     menu = abc_menu.abc_menu()
 
-    # add comet to MAYA_SCRIPT_PATH
-    # os.environ["MAYA_SCRIPT_PATH"] += str(";" + settings.COMET_TOOLS)
-    # mel.eval("source cometMenu.mel;")
 
 # script job
-scriptJobNum = cmds.scriptJob(event=["NewSceneOpened", abc_pipe_setup])
+script_job = cmds.scriptJob(event=["NewSceneOpened", abc_pipe_setup])

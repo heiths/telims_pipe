@@ -1,0 +1,63 @@
+global proc qrTools (){
+
+if(!`window -exists qrToolsWin`){
+string $win = `window -t "Quadruped Rigging Tools" qrToolsWin`;
+string $pane = `paneLayout -configuration "single"`;
+	string $b1 = `gridLayout -numberOfColumns 8 -cellWidthHeight 45 45`;
+		iconTextButton -i "history.bmp" -c "DeleteHistory";
+		iconTextButton -i "freezeAll.bmp" -c "makeIdentity -apply true -t 1 -r 1 -s 1 -n 0";
+		iconTextButton -i "freezeTranslate.bmp" -c "makeIdentity -apply true -t 1 -r 0 -s 0 -n 0";
+		iconTextButton -i "freezeRotate.bmp" -c "makeIdentity -apply true -t 0 -r 1 -s 0 -n 0";
+		iconTextButton -i "freezeScale.bmp" -c "makeIdentity -apply true -t 0 -r 0 -s 1 -n 0";
+		iconTextButton -i "zeroOut.bmp" -c "source sgAR_zero.mel;sgAR_zeroSel";
+		iconTextButton -i "cometJointOrient.bmp" -c "source cometJointOrient.mel; cometJointOrient(); ";
+		iconTextButton -i "cometRename.bmp" -c "source cometRename.mel; cometRename(); ";
+		iconTextButton -i "cometSaveWeights.bmp" -c "source \"libSkin.mel\";  cometSaveWeights;";
+		iconTextButton -i "cometSkinWeights.bmp" -c "source cometSkinWeight.mel; cometSkinWeight(); ";
+		iconTextButton -i "nullGRP.bmp" -c "source \"wireShape.mel\"; wireShape(\"null\"); ";
+		iconTextButton -i "lockNhide.bmp" -c "rig101locknHide();";
+		iconTextButton -i "connectionEditor.bmp" -c "ijConnectionEditor";
+		iconTextButton -i "paintSkinWeights.xpm" -c "ArtPaintSkinWeightsToolOptions";
+		iconTextButton -i "mirrorSkinWeight.xpm" -c "MirrorSkinWeightsOptions";
+		iconTextButton -i "edgeToCurve.bmp" -c "polyToCurve -form 2 -degree 1";
+		iconTextButton -i "edgesToJoint.bmp" -c "source sgEdgesToJoint.mel;sgEdgesToJointWin";
+		iconTextButton -i "makeJoint.bmp" -c "wireShape(\"joint\")";
+		iconTextButton -i "circleX.bmp" -c "wireShape(\"circleX\")";
+		iconTextButton -i "circleY.bmp" -c "wireShape(\"circleY\")";
+		iconTextButton -i "circleZ.bmp" -c "wireShape(\"circleZ\")";
+		iconTextButton -i "nurbsPOS.bmp" -c "sgAR_nurbsPOS";
+		iconTextButton -i "calisthenicsKey.bmp" -c "source \"sgCalisthenicsKey.mel\";sgCalisthenicsKeyWin;";
+		iconTextButton -i "sgLockMesh.bmp" -c "sgLockMesh";
+		iconTextButton -i "stretchyJoint.bmp" -c "source sgAR_stretchyJoint.mel; bteStretchyJointWin";
+		iconTextButton -i "multDiv.bmp" -c "shadingNode -asUtility multiplyDivide";
+		iconTextButton -i "PMA.bmp" -c "shadingNode -asUtility plusMinusAverage";
+		iconTextButton -i "reverse.bmp" -c "shadingNode -asUtility reverse";
+		iconTextButton -i "blendColors.bmp" -c "shadingNode -asUtility blendColors";
+		iconTextButton -i "clamp.bmp" -c "shadingNode -asUtility clamp";
+		iconTextButton -i "condition.bmp" -c "shadingNode -asUtility condition";
+		iconTextButton -i "curveInfo.bmp" -c "shadingNode -asUtility curveInfo";
+		iconTextButton -i "surfaceInfo.bmp" -c "shadingNode -asUtility surfaceInfo";
+		iconTextButton -i "distance.bmp" -c "shadingNode -asUtility distanceBetween";
+		iconTextButton -i "cycle.bmp" -c "sgAR_cyclicalSetup";
+		iconTextButton -i "jointDisplay.bmp" -c "source sgJointDisplayOff.mel;sgJointDisplayOff;";
+		iconTextButton -i "edgesToCurve.bmp" -c "sgAR_edgesToCurve(`ls -sl`)";
+		iconTextButton -i "mirrorCTRL.bmp" -c "sgAR_mirrorControl(`ls -sl`)";
+		iconTextButton -i "parentShape.bmp" -c "sgAR_parentShapes(`ls -sl`)";
+		iconTextButton -i "nurbsColor.bmp" -c "sgNurbsColor";
+			setParent ..;
+		
+		gridLayout -numberOfColumns 3 -cellWidthHeight 60 60;
+
+			
+			
+
+	
+
+showWindow qrToolsWin;
+}
+	else{
+		deleteUI -window qrToolsWin;
+		}
+}
+
+qrTools;
