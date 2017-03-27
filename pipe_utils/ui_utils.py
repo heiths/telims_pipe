@@ -34,7 +34,7 @@ if not MAYA:
 import os
 
 # external
-from epic.utils import path_lib
+# from epic.utils import path_lib
 
 # 3rd party
 try:
@@ -113,10 +113,10 @@ class UIUtils(QtWidgets.QWidget):
             window.setCentralWidget(cwidget)
         if on_top:
             self.set_on_top(window, on=True)
-        if styling == "dark":
-            style_sheet_file = QtCore.QFile(path_lib.aaron_dark_stylesheet)
-            style_sheet_file.open(QtCore.QFile.ReadOnly)
-            window.setStyleSheet(str(style_sheet_file.readAll()))
+        # if styling == "dark":
+            # style_sheet_file = QtCore.QFile(path_lib.aaron_dark_stylesheet)
+            # style_sheet_file.open(QtCore.QFile.ReadOnly)
+            # window.setStyleSheet(str(style_sheet_file.readAll()))
 
         if MAYA:
             window.setProperty("saveWindowPref", True)
