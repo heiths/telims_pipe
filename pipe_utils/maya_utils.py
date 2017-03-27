@@ -283,24 +283,3 @@ def _mirror_rigid_body_transform(selection, side, other_side):
     radius = cmds.getAttr("{0}.radius".format(selection))
     cmds.setAttr("{0}.radius".format(mirror_node), radius)
 
-#----------------------------------------------
-# Select the root joint in your scene
-def findMissingJointMovers():
-    cmds.select(hi=True)
-    joints = cmds.ls(sl=True, type="joint")
-    jointsWithoutMovers = []
-    print "\n"
-    print "Joints that dont have movers:"
-    for one in joints:
-        if one.find("_l") != -1:
-            if not cmds.objExists(one[0:-2]+"_mover_l"):
-                print one
-                jointsWithoutMovers.append(one)
-        elif one.find("_r") != -1:
-            if not cmds.objExists(one[0:-2]+"_mover_r"):
-                print one
-                jointsWithoutMovers.append(one)
-        elif not cmds.objExists(one+"_mover"):
-            print one
-            jointsWithoutMovers.append(one)
-    cmds.select(jointsWithoutMovers)
