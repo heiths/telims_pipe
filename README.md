@@ -7,7 +7,6 @@ On first launch of Maya a dialog will pop-up, click browse. Search for wherever 
 
 You won't need to do this step anymore.
 
-~~~
 ### reloading
 ~~~ python
 # for reloading, just reload abc_pipe
