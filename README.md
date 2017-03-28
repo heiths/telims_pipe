@@ -9,6 +9,6 @@ You won't need to do this step anymore.
 
 ### reloading
 ~~~ python
-# for reloading, just reload abc_pipe
+# for reloading, just reload abc_pipe (some reloading magic is done in the base __init__)
 reload(abc_pipe)
 ~~~
