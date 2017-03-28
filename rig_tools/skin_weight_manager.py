@@ -8,7 +8,8 @@
     A fast and efficient skinWeight manager using the Python Maya API.
 
 :how to use:
-    from epic.rigging import skin_weight_manager
+    import abc_pipe
+    from rig_utils import skin_weight_manager
 
     # export weights
     path = "path/to/export/{0}.json"
