@@ -10,20 +10,64 @@
 """
 
 #------------------------------------------------------------------------------#
+#--------------------------------------------------------- APPLICATION CHECK --#
+
+# Maya check
+try:
+    from maya import cmds, OpenMaya
+    import maya.OpenMayaUI as mui
+    MAYA = True
+except ImportError:
+    MAYA = False
+
+# add more apps here
+
+# TODO: add standalone helper function
+STANDALONE = False
+if not MAYA:
+    STANDALONE = True
+
+#------------------------------------------------------------------------------#
 #------------------------------------------------------------------- IMPORTS --#
 
 # built-in
 import os
+
+# external
+# from epic.utils import path_lib
 
 # 3rd party
 try:
     import shiboken as shiboken
 except:
     import shiboken2 as shiboken
-from maya import cmds, OpenMaya
-import maya.OpenMayaUI as mui
 from Qt import QtGui, QtCore, QtWidgets
-from maya.app.general.mayaMixin import MayaQWidgetBaseMixin
+
+#------------------------------------------------------------------------------#
+#----------------------------------------------------------------- FUNCTIONS --#
+
+def _get_maya_main_window():
+    """Grabs the Maya window."""
+    pointer = mui.MQtUtil.mainWindow()
+    return shiboken.wrapInstance(long(pointer), QtWidgets.QWidget)
+
+def _delete_maya_widget(window_name, window_title):
+    """Maya's way of handling Singletons"""
+    # window
+    if cmds.window(window_name, exists=True):
+        cmds.deleteUI(window_name, window=True)
+        try:
+            cmds.deleteUI(window_name, control=True)
+        except:
+            pass
+
+    # dock
+    if cmds.dockControl(window_title, q=True, exists=True):
+        cmds.deleteUI(window_title, control=True)
+        try:
+            cmds.deleteUI(window_name, window=True)
+        except:
+            pass
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------- CLASSES --#
@@ -36,17 +80,26 @@ class MainWindow(QtWidgets.QMainWindow):
             pass # make silent
 
 
-class UIUtils(MayaQWidgetBaseMixin, QtWidgets.QWidget):
+class UIUtils(QtWidgets.QWidget):
     """Base class for UI constructors."""
 
     # globals
+    SINGLETON = False
+    MAYA_DOCK = False
+
     save_button = QtWidgets.QMessageBox.Yes
     multiple_selection = QtWidgets.QAbstractItemView.ExtendedSelection
 
     def window(self, wname=None, wtitle=None, cwidget=None, on_top=None,
-               styling=None):
+               styling=None, parent=None):
         """Defines basic window parameters."""
-        parent = self.get_maya_window()
+        # maya specific
+        if MAYA:
+            if self.SINGLETON:
+                _delete_maya_widget(wname, wtitle)
+            parent = _get_maya_main_window()
+
+        # define window
         window = MainWindow(parent)
 
         self.window_name = wname
@@ -60,11 +113,25 @@ class UIUtils(MayaQWidgetBaseMixin, QtWidgets.QWidget):
             window.setCentralWidget(cwidget)
         if on_top:
             self.set_on_top(window, on=True)
+        # if styling == "dark":
+            # style_sheet_file = QtCore.QFile(path_lib.aaron_dark_stylesheet)
+            # style_sheet_file.open(QtCore.QFile.ReadOnly)
+            # window.setStyleSheet(str(style_sheet_file.readAll()))
 
-        # retain window position
-        window.setProperty("saveWindowPref", True)
+        if MAYA:
+            window.setProperty("saveWindowPref", True)
 
         return window
+
+    def maya_show(self, window, wname, wtitle, area=None):
+        if not self.MAYA_DOCK:
+            window.show()
+        elif self.MAYA_DOCK:
+            allowed_areas = ["right", "left"]
+            if not area:
+                area = "left"
+            cmds.dockControl(wname, label=wtitle, area=area,
+                             content=wname, allowedArea=allowed_areas)
 
     def closeEvent(self, event):
         pass
@@ -85,11 +152,6 @@ class UIUtils(MayaQWidgetBaseMixin, QtWidgets.QWidget):
         args = [window.windowFlags() ^ QtCore.Qt.WindowStaysOnTopHint]
         window.setWindowFlags(*args)
         window.show()
-
-    def get_maya_window(self):
-        """Grabs the Maya window."""
-        pointer = mui.MQtUtil.mainWindow()
-        return shiboken.wrapInstance(long(pointer), QtWidgets.QWidget)
 
     def widget(self):
         """Main Widget"""
@@ -214,7 +276,8 @@ class UIUtils(MayaQWidgetBaseMixin, QtWidgets.QWidget):
         settings.clear()
         if not info:
             info = "Settings have been Reset."
-        OpenMaya.MGlobal.displayWarning(info)
+        if MAYA:
+            OpenMaya.MGlobal.displayWarning(info)
 
     @classmethod
     def get_open_filename(cls, cap, file_filter, start_path=None,
