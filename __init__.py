@@ -9,13 +9,13 @@
     Base __init__ for telims_pipe
 
 :use:
-    Instead of reloading individual modules simply reload(telims_pipe)
+    Instead of reloading individual modules simply reload(abc_pipe)
     This will require you to do an initial import for telims_pipe, but
     after that you will not need to reload individual modules, only the
-    root module 'telims_pipe'.
+    root module 'abc_pipe'.
 
 This __init__ is for transport. If placed in maya/scripts directory, you
-can simply: import telims_pipe. This __init__ will automatically append
+can simply: import abc_pipe. This __init__ will automatically append
 the path to rigging_tools inside the sys.path list.
 """
 
