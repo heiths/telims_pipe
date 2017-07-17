@@ -18,14 +18,11 @@ using namespace Imath;
 using namespace std;
 
 void
-exr_channel_cleanup(
-	    string inFileName,
-		string outFileName,
-		bool verbose)
+exr_channel_cleanup(string inFileName, string outFileName, bool verbose)
 {
 	Header header;
 	Image image;
-    FrameBuffer outFb;
+        FrameBuffer outFb;
 
 	boost::regex RED_CHANNEL_MATCH("([a-zA-Z0-9_]+).([Rred]+)");
 	boost::regex RGBA_CHANNEL_MATCH("([RGBA])");
@@ -34,12 +31,8 @@ exr_channel_cleanup(
 	ChannelList new_channels;
 	ChannelList alpha_channels;
 
-	//
 	// Find the size of the dataWindow
-	//
-
 	Box2i d;
-
 	{
 		InputFile in (inFileName.c_str());
 		header = in.header();
@@ -49,13 +42,10 @@ exr_channel_cleanup(
 		image.resize(d);
 		header.dataWindow() = d;
 
-		// blow away channels;, we'll rebuild them
-		header.channels() = ChannelList();
-
-	//
+	// blow away channels;, we'll rebuild them
+	header.channels() = ChannelList();
+	
 	// Read the input image files
-	//
-
 	{
 		InputFile in (inFileName.c_str());
 
@@ -70,8 +60,8 @@ exr_channel_cleanup(
 		string channelUnderscoreDelimiter = "mat_";
 
 		for (ChannelList::ConstIterator j = in.header().channels().begin();
-				j != in.header().channels().end();
-				++j)
+		     j != in.header().channels().end();
+		     ++j)
 		{
 			const Channel &inChannel = j.channel();
 
@@ -118,15 +108,14 @@ exr_channel_cleanup(
 		in.readPixels (in.header().dataWindow().min.y, in.header().dataWindow().max.y);
 	}
 
-	//
 	// Write the output image file
-	//
-
 	{
 		OutputFile out (outFileName.c_str(), header);
 
 		if (verbose)
+		{
 			cout << "writing file " << outFileName << endl;
+		}
 
 		out.setFrameBuffer(outFb);
 		out.writePixels(header.dataWindow().max.y - header.dataWindow().min.y + 1);
