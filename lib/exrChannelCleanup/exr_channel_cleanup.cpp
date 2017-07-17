@@ -17,8 +17,7 @@ using namespace Imf;
 using namespace Imath;
 using namespace std;
 
-void
-exr_channel_cleanup(string inFileName, string outFileName, bool verbose)
+void exr_channel_cleanup(string inFileName, string outFileName, bool verbose)
 {
 	Header header;
 	Image image;
